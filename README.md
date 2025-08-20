@@ -27,8 +27,8 @@ I'm a passionate developer working primarily with:
 
 Check out my repositories for:
 
-- Mobile apps (Flutter/Dart)
-- SaaS platforms (Fullstack)
+- Mobile apps 
+- SaaS and web apps 
 - CLI utilities and infrastructure packages
 
 ## 📫 Get in Touch
