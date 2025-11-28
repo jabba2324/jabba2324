@@ -1,6 +1,6 @@
 # Hello 👋
 
-Passionate software engineer interested in AI/ML and coding Python, Javascript, Go, Rust, C#, Flutter.  
+I'm a passionate software engineer interested in AI/ML and coding Python, Javascript, Go, Rust, C#, Flutter.  
 
 ## Published stuff
 
