@@ -11,6 +11,4 @@ I'm a passionate software engineer interested in AI/ML and coding Python, Javasc
 * The weekender: [The possibilities are endless](https://jabba2324.github.io/weekender/)
 * The team lead handbook: [WIP](https://github.com/jabba2324/team-lead-handbook)
 
----
-
 Thanks for stopping by! 🚀
