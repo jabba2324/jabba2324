@@ -1,24 +1,15 @@
-# Hi there 👋, I'm jabba2324
+# Hi there
 
-Welcome to my GitHub profile!  
-I'm a passionate developer working primarily with:
+Passionate software engineer interested in AI/ML and coding Python, Javascript, Go, Rust, C#, Flutter.  
 
-- **Mobile Apps:** Building cross-platform solutions with Flutter.
-- **SaaS** Developing scalable software as a service, from backend to frontend.
-- **CLI Tools & Scripts:** Crafting command-line interfaces and automation scripts for productivity.
-- **Infrastructure as Code:** Automating cloud infrastructure setup and management using Terraform.
+## Published stuff
 
-## 🛠️ Tech & Tools
-
-- **Frameworks & Libraries:** .NET, Flask, Express, Flutter
-- **Cloud & DevOps:** AWS, Terraform, Docker
-- **Languages:** C#, Python, JavaScript/TypeScript, Rust, Go, Dart, Bash
-
-## 📫 Get in Touch
-
-Feel free to connect or check out my work:
-
-- [GitHub](https://github.com/jabba2324)
+Cardy: [https://cardymail.com](https://cardymail.com) 
+Make LinkedIn Great Again: (Coming Soon)
+jsondiff: [Brew Tap](https://github.com/jabba2324/homebrew-jsondiff)
+Rosa offline chat and translation: (Coming Soon)
+The weekender: [The possibilities are endless](https://jabba2324.github.io/weekender/)
+The team lead handbook: [WIP](https://github.com/jabba2324/team-lead-handbook)
 
 ---
 
