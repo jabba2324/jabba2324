@@ -1,6 +1,6 @@
 # Chris Sewell - Work & Education
 
-## Experience
+## Work
 
 ### Build Circle
 **Technology Director**  
