@@ -4,7 +4,8 @@ I'm a passionate software engineer interested in AI/ML and coding Python, Javasc
 
 ## Published stuff
 
-* Cardy: [An app for generating and sending fstive eCards](https://cardymail.com) 
+* Cardy: [An app for generating and sending fstive eCards](https://cardymail.com)
+* OWASP10 Scanner: [A Claude Plugin for detecting OWASP 10 security vulnerabilities](https://github.com/jabba2324/OWASP10-skill)
 * Make LinkedIn Great Again: [A chrome extension for filtering irrelevent feed content](https://chromewebstore.google.com/detail/make-linkedin-great-again/oimekbmmgffgjcihonhhkpmbhkacclkl?authuser=0&hl=en)
 * jsondiff: [A CLI tool for comparing json documents](https://github.com/jabba2324/homebrew-jsondiff)
 * Rose offline chat and translation: (Coming Soon)
