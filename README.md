@@ -6,7 +6,7 @@ I'm a passionate software engineer interested in AI/ML and coding Python, Javasc
 
 * AI generated daily news casts: [Built with n8n & ElevenLabs](https://jabba2324.github.io/podcasts/)
 * S3 Browser: [IOS app for browing S3 buckets](https://apps.apple.com/us/app/s3-browser/id6758526575)
-* Cardy: [An app for generating and sending fstive eCards](https://cardymail.com)
+* Cardy: [An app for generating and sending festive eCards](https://cardymail.com)
 * OWASP10 Scanner: [A Claude Plugin for detecting OWASP 10 security vulnerabilities](https://github.com/jabba2324/OWASP10-skill)
 * Make LinkedIn Great Again: [A chrome extension for filtering irrelevent feed content](https://chromewebstore.google.com/detail/make-linkedin-great-again/oimekbmmgffgjcihonhhkpmbhkacclkl?authuser=0&hl=en)
 * jsondiff: [A CLI tool for comparing json documents](https://github.com/jabba2324/homebrew-jsondiff)
