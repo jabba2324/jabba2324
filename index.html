@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chris Sewell</title>
+  <style>
+    :root {
+      --navy: #1e2d3d;
+      --navy-light: #2c3e50;
+      --accent: #4a9eff;
+      --accent-dim: #2d6dbf;
+      --text: #e8edf2;
+      --text-muted: #8fa3b8;
+      --surface: #243447;
+      --border: #334d66;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--navy);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── HEADER ── */
+    header {
+      background: linear-gradient(135deg, var(--navy-light) 0%, var(--navy) 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 3.5rem 2rem 3rem;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 0.4rem;
+    }
+
+    header .headline {
+      font-size: 1rem;
+      color: var(--accent);
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    header .location {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    header .cta-row {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-top: 1.75rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.55rem 1.2rem;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: opacity 0.15s;
+    }
+    .btn:hover { opacity: 0.85; text-decoration: none; }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-outline { border: 1px solid var(--border); color: var(--text); background: transparent; }
+
+    /* ── LAYOUT ── */
+    main {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem;
+      display: grid;
+      gap: 3rem;
+    }
+
+    /* ── SECTION ── */
+    section h2 {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── EXPERIENCE ── */
+    .job { display: grid; gap: 0.25rem; padding: 1.25rem 0; border-bottom: 1px solid var(--border); }
+    .job:last-child { border-bottom: none; }
+
+    .job-header { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 0.25rem; }
+    .job-company { font-size: 1.05rem; font-weight: 600; }
+    .job-dates { font-size: 0.8rem; color: var(--text-muted); white-space: nowrap; }
+    .job-title { color: var(--accent); font-size: 0.9rem; font-weight: 500; }
+    .job-location { font-size: 0.8rem; color: var(--text-muted); }
+    .job-desc { margin-top: 0.5rem; font-size: 0.92rem; color: var(--text-muted); }
+
+    /* ── SKILLS / CERTS ── */
+    .pill-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+
+    .pill {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 0.35rem 0.9rem;
+      font-size: 0.85rem;
+    }
+
+    .pill.accent {
+      border-color: var(--accent-dim);
+      color: var(--accent);
+    }
+
+    /* ── EDUCATION ── */
+    .edu { display: grid; gap: 0.2rem; }
+    .edu-school { font-size: 1.05rem; font-weight: 600; }
+    .edu-degree { color: var(--text-muted); font-size: 0.9rem; }
+    .edu-dates { font-size: 0.8rem; color: var(--text-muted); }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+    }
+
+    @media (max-width: 500px) {
+      .job-header { flex-direction: column; }
+      .job-dates { margin-top: -0.1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Chris Sewell</h1>
+  <p class="headline">Agentic Engineering &middot; MCP &middot; RAG &middot; Claude Skills</p>
+  <p class="location">United Kingdom</p>
+  <div class="cta-row">
+    <a class="btn btn-primary" href="https://www.linkedin.com/in/chrissewell2" target="_blank" rel="noopener">
+      LinkedIn
+    </a>
+    <a class="btn btn-outline" href="https://www.buildcircle.co" target="_blank" rel="noopener">
+      Build Circle
+    </a>
+    <a class="btn btn-outline" href="https://calendly.com/chris-sewellefe/30min" target="_blank" rel="noopener">
+      Book a Call
+    </a>
+  </div>
+</header>
+
+<main>
+
+  <!-- EXPERIENCE -->
+  <section>
+    <h2>Experience</h2>
+
+    <div class="job">
+      <div class="job-header">
+        <span class="job-company">Build Circle</span>
+        <span class="job-dates">May 2018 &ndash; Present &middot; 8 yrs</span>
+      </div>
+      <div class="job-title">Technology Director</div>
+      <div class="job-desc">First and longest-standing director at Build Circle, building capable teams, removing risk, and delivering value for clients.</div>
+    </div>
+
+    <div class="job">
+      <div class="job-header">
+        <span class="job-company">Zuse Apps</span>
+        <span class="job-dates">Sep 2017 &ndash; Apr 2018 &middot; 8 mos</span>
+      </div>
+      <div class="job-title">Founder</div>
+      <div class="job-location">London, United Kingdom</div>
+      <div class="job-desc">An outsourcing company building mobile and SaaS products for startups.</div>
+    </div>
+
+    <div class="job">
+      <div class="job-header">
+        <span class="job-company">JUST EAT</span>
+        <span class="job-dates">Jan 2016 &ndash; Sep 2017 &middot; 1 yr 9 mos</span>
+      </div>
+      <div class="job-title">Software Engineer</div>
+      <div class="job-location">London, United Kingdom</div>
+      <div class="job-desc">Partner products, driver location tracking, and EPOS.</div>
+    </div>
+
+    <div class="job">
+      <div class="job-header">
+        <span class="job-company">Dome Consulting Ltd</span>
+        <span class="job-dates">Jan 2015 &ndash; Dec 2015 &middot; 1 yr</span>
+      </div>
+      <div class="job-title">Software Engineer</div>
+      <div class="job-location">London, United Kingdom</div>
+      <div class="job-desc">Building document management and editing software for the construction industry.</div>
+    </div>
+
+    <div class="job">
+      <div class="job-header">
+        <span class="job-company">Accenture</span>
+        <span class="job-dates">Aug 2014 &ndash; Jan 2015 &middot; 6 mos</span>
+      </div>
+      <div class="job-title">Software Engineer</div>
+      <div class="job-location">London, United Kingdom</div>
+      <div class="job-desc">Various projects for DWP, Discovery Channel, and Home Retail Group.</div>
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section>
+    <h2>Top Skills</h2>
+    <div class="pill-grid">
+      <span class="pill accent">Rust</span>
+      <span class="pill accent">Go</span>
+      <span class="pill accent">Front-End Development</span>
+      <span class="pill">Agentic Engineering</span>
+      <span class="pill">MCP</span>
+      <span class="pill">RAG</span>
+      <span class="pill">Claude Skills</span>
+    </div>
+  </section>
+
+  <!-- CERTIFICATIONS -->
+  <section>
+    <h2>Certifications</h2>
+    <div class="pill-grid">
+      <span class="pill">Microsoft Certified: Azure Cosmos DB Developer Specialty</span>
+      <span class="pill">AWS Cloud Practitioner</span>
+      <span class="pill">Microsoft Azure Fundamentals</span>
+      <span class="pill">DBS Enhanced Certificate</span>
+    </div>
+  </section>
+
+  <!-- EDUCATION -->
+  <section>
+    <h2>Education</h2>
+    <div class="edu">
+      <div class="edu-school">University of the West of England</div>
+      <div class="edu-degree">BSc Hons, Computer Software Engineering</div>
+      <div class="edu-dates">2010 &ndash; 2014</div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  &copy; 2026 Chris Sewell &middot; <a href="https://www.buildcircle.co">buildcircle.co</a>
+</footer>
+
+</body>
+</html>
