@@ -1,0 +1,12 @@
+{{ define "main" }}
+<article class="cv">
+  <header class="cv-header">
+    <h1>{{ .Title }}</h1>
+    {{ with .Params.tagline }}<p class="cv-tagline">{{ . }}</p>{{ end }}
+  </header>
+
+  <div class="cv-body">
+    {{ .Content }}
+  </div>
+</article>
+{{ end }}

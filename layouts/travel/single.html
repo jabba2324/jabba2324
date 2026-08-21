@@ -1,0 +1,19 @@
+{{ define "main" }}
+<article class="album-page">
+  <h1>{{ .Title }}</h1>
+  {{ with .Params.location }}<p class="album-meta">📍 {{ . }}{{ with $.Params.year }}, {{ . }}{{ end }}</p>{{ end }}
+
+  {{ with .Params.apple_album_url }}
+  <div class="apple-album-embed">
+    <p>
+      <a class="album-link-btn" href="{{ . }}" target="_blank" rel="noopener">
+        View album in Apple Photos →
+      </a>
+    </p>
+  </div>
+  {{ end }}
+
+  {{ .Content }}
+</article>
+<p><a href="/photos/">← Back to Photos</a></p>
+{{ end }}

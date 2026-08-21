@@ -1,0 +1,67 @@
+{{ define "head" }}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+{{ end }}
+
+{{ define "main" }}
+<h1>{{ .Title }}</h1>
+{{ .Content }}
+
+<div id="holiday-map" aria-label="Holiday locations map"></div>
+
+<h2>Countries Visited</h2>
+<ul class="country-list">
+  {{ range hugo.Data.visited }}
+  <li>{{ .country }}</li>
+  {{ end }}
+</ul>
+
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script>
+(function () {
+  const map = L.map('holiday-map', {
+    maxBounds: [[-90, -180], [90, 180]],
+    maxBoundsViscosity: 1.0,
+  }).setView([30, 10], 2);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom: 18,
+  }).addTo(map);
+
+  // Visited country pins
+  const visitedIcon = L.divIcon({
+    className: '',
+    html: '<div style="width:12px;height:12px;border-radius:50%;background:#2563eb;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.4)"></div>',
+    iconSize: [12, 12],
+    iconAnchor: [6, 6],
+  });
+
+  const visited = [
+    {{ range hugo.Data.visited }}
+    { country: {{ .country | jsonify }}, lat: {{ .lat }}, lng: {{ .lng }} },
+    {{ end }}
+  ];
+
+  visited.forEach(function(v) {
+    L.marker([v.lat, v.lng], { icon: visitedIcon })
+      .addTo(map)
+      .bindPopup('<strong>' + v.country + '</strong>');
+  });
+
+  // Album pins (link through to album page)
+  const albums = [
+    {{ range .Pages }}{{ if and .Params.lat .Params.lng }}
+    { title: {{ .Title | jsonify }}, url: {{ .Permalink | jsonify }}, lat: {{ .Params.lat }}, lng: {{ .Params.lng }}, location: {{ or .Params.location "" | jsonify }} },
+    {{ end }}{{ end }}
+  ];
+
+  albums.forEach(function(a) {
+    L.marker([a.lat, a.lng])
+      .addTo(map)
+      .bindPopup('<a href="' + a.url + '">' + a.title + '</a><br><small>' + a.location + '</small>');
+  });
+
+  setTimeout(function() { map.invalidateSize(); }, 100);
+})();
+</script>
+{{ end }}

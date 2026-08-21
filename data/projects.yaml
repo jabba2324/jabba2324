@@ -1,0 +1,112 @@
+- category: Agentic & AI
+  items:
+    - name: grace-hopper
+      description: A simple agent runner for autonomous software engineering.
+      url: https://github.com/jabba2324/grace-hopper
+      lang: Python
+      icon: 🤖
+
+    - name: pdf-rag-kata
+      description: Experiments with retrieval-augmented generation over PDF documents.
+      url: https://github.com/jabba2324/pdf-rag-kata
+      lang: Python
+      icon: 📄
+
+    - name: mcp-kata
+      description: Hands-on experiments with Model Context Protocol servers.
+      url: https://github.com/jabba2324/mcp-kata
+      lang: Python
+      icon: 🔌
+
+    - name: rose-ml
+      description: Converts Helsinki NLP translation models to PyTorch Mobile format.
+      url: https://github.com/jabba2324/rose-ml
+      lang: Python
+      icon: 🌹
+
+    - name: analyzing-code-with-genai
+      description: Experiments using local and self-hosted LLMs to analyze code.
+      url: https://github.com/jabba2324/analyzing-code-with-genai
+      lang: C#
+      icon: 🧠
+
+    - name: podcasts_tts
+      description: Text-to-speech pipeline for generating podcast audio.
+      url: https://github.com/jabba2324/podcasts_tts
+      lang: Python
+      icon: 🎙️
+
+- category: CLI Tools
+  items:
+    - name: jsondiff
+      description: CLI tool for comparing two JSON files, with structured diff output.
+      url: https://github.com/jabba2324/jsondiff
+      lang: Go
+      icon: 🔍
+
+    - name: dnsgrep
+      description: CLI tool for searching AWS resources by DNS name.
+      url: https://github.com/jabba2324/dnsgrep
+      lang: Go
+      icon: 🌐
+
+    - name: homebrew-jsondiff
+      description: Homebrew tap for installing jsondiff on macOS.
+      url: https://github.com/jabba2324/homebrew-jsondiff
+      lang: Ruby
+      icon: 🍺
+
+- category: Web & Apps
+  items:
+    - name: s3-browser
+      description: A browser-based S3 bucket explorer.
+      url: https://github.com/jabba2324/s3-browser
+      live: https://s3-browser-xi.vercel.app
+      lang: Dart
+      icon: 🗄️
+
+    - name: weekender
+      description: Generates ideas for new apps and suggests a tech stack to learn with them.
+      url: https://github.com/jabba2324/weekender
+      live: https://jabba2324.github.io/weekender/
+      lang: JavaScript
+      icon: 💡
+
+    - name: saas-project-template
+      description: A starter template for SaaS projects.
+      url: https://github.com/jabba2324/saas-project-template
+      live: https://saas-project-template-murex.vercel.app
+      lang: TypeScript
+      icon: 🚀
+
+    - name: cardy
+      description: Brochure site for Cardy — a transactional email service.
+      url: https://github.com/jabba2324/cardy
+      live: https://cardymail.com
+      lang: HTML
+      icon: ✉️
+
+    - name: perlin-map-generator
+      description: Procedural world map generator using Perlin noise.
+      url: https://github.com/jabba2324/perlin-map-generator
+      lang: Rust
+      icon: 🗺️
+
+- category: Other
+  items:
+    - name: shopify-max-shipping-fee
+      description: A Shopify checkout function that caps the maximum shipping fee charged.
+      url: https://github.com/jabba2324/shopify-max-shipping-fee
+      lang: TypeScript
+      icon: 🛒
+
+    - name: team-lead-handbook
+      description: A handbook of guidance and practices for engineering team leads.
+      url: https://github.com/jabba2324/team-lead-handbook
+      icon: 📚
+
+    - name: S3-backup-restore-scripts
+      description: PowerShell scripts for backing up and restoring objects between S3 buckets.
+      url: https://github.com/jabba2324/S3-backup-restore-scripts
+      lang: PowerShell
+      icon: 💾

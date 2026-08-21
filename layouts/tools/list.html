@@ -1,0 +1,17 @@
+{{ define "main" }}
+<h1>{{ .Title }}</h1>
+{{ .Content }}
+
+<ul class="tools-list">
+  {{ range hugo.Data.tools }}
+  <li class="tool-card">
+    <div class="tool-header">
+      {{ with .icon }}<span class="tool-icon">{{ . }}</span>{{ end }}
+      <a class="tool-name" href="{{ .url }}" target="_blank" rel="noopener">{{ .name }}</a>
+      {{ range .tags }}<span class="tag">{{ . }}</span>{{ end }}
+    </div>
+    <p class="tool-desc">{{ .description }}</p>
+  </li>
+  {{ end }}
+</ul>
+{{ end }}

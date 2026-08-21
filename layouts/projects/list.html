@@ -1,0 +1,23 @@
+{{ define "main" }}
+<h1>{{ .Title }}</h1>
+{{ .Content }}
+
+{{ range hugo.Data.projects }}
+<section class="project-category">
+  <h2>{{ .category }}</h2>
+  <ul class="project-list">
+    {{ range .items }}
+    <li class="project-card">
+      <div class="project-header">
+        {{ with .icon }}<span class="project-icon">{{ . }}</span>{{ end }}
+        <a class="project-name" href="{{ .url }}" target="_blank" rel="noopener">{{ .name }}</a>
+        {{ with .lang }}<span class="tag">{{ . }}</span>{{ end }}
+        {{ with .live }}<a class="project-live" href="{{ . }}" target="_blank" rel="noopener">↗ live</a>{{ end }}
+      </div>
+      <p class="project-desc">{{ .description }}</p>
+    </li>
+    {{ end }}
+  </ul>
+</section>
+{{ end }}
+{{ end }}
