@@ -58,12 +58,37 @@
 
 - category: Web & Apps
   items:
+    - name: AI Daily Podcasts
+      description: AI-generated daily news podcasts built with n8n and ElevenLabs.
+      url: https://github.com/jabba2324/podcasts
+      live: https://jabba2324.github.io/podcasts/
+      icon: 📰
+
+    - name: S3 Browser (iOS)
+      description: iOS app for browsing S3 buckets on the go.
+      url: https://apps.apple.com/us/app/s3-browser/id6758526575
+      live: https://apps.apple.com/us/app/s3-browser/id6758526575
+      lang: Dart
+      icon: 📱
+
     - name: s3-browser
       description: A browser-based S3 bucket explorer.
       url: https://github.com/jabba2324/s3-browser
       live: https://s3-browser-xi.vercel.app
       lang: Dart
       icon: 🗄️
+
+    - name: Make LinkedIn Great Again
+      description: Chrome extension for filtering irrelevant content from the LinkedIn feed.
+      url: https://github.com/jabba2324/mlga
+      live: https://chromewebstore.google.com/detail/make-linkedin-great-again/oimekbmmgffgjcihonhhkpmbhkacclkl
+      lang: JavaScript
+      icon: 🔵
+
+    - name: OWASP10 Scanner
+      description: A Claude Code skill for detecting OWASP Top 10 security vulnerabilities.
+      url: https://github.com/jabba2324/OWASP10-skill
+      icon: 🛡️
 
     - name: weekender
       description: Generates ideas for new apps and suggests a tech stack to learn with them.
