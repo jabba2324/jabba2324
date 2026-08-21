@@ -74,7 +74,7 @@ a:hover { color: var(--accent); }
 }
 
 /* ── Main ── */
-main { padding: 2.5rem 0 1rem; }
+main { padding: 3.5rem 0 1rem; }
 
 /* ── Homepage ── */
 .home-hero { margin-bottom: 2.5rem; }
@@ -237,6 +237,7 @@ main { padding: 2.5rem 0 1rem; }
 
 /* ── CV ── */
 .cv-header { margin-bottom: 2rem; }
+.cv-header-top { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
 .cv-header h1 { font-size: 2rem; margin-bottom: 0.25rem; }
 .cv-tagline { color: var(--muted); margin-bottom: 1rem; }
 
