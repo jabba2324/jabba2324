@@ -1,12 +1,4 @@
 {{ define "main" }}
-<div class="profile-hero">
-  <img class="profile-pic" src="/assets/profile.jpg" alt="Chris Sewell">
-  <div class="profile-info">
-    <h1>Chris Sewell</h1>
-    <p class="profile-bio">Technology Director at Build Circle. Building things with AI, Go, Rust, and whatever else seems interesting.</p>
-  </div>
-</div>
-
 <ul class="post-list">
   {{ range (where .Site.RegularPages "Section" "blog") }}
   <li class="post-item">
