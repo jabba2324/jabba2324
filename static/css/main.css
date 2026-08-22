@@ -223,27 +223,20 @@ main h1 { margin-bottom: 1.75rem; }
 
 .hex {
   position: absolute;
-  /* width/height set by JS based on viewport */
-  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
-  background: #d1d5db; /* subtle grey — the border layer */
-  text-decoration: none;
-  color: var(--text);
-  transition: transform 0.18s ease, filter 0.18s ease;
-  cursor: pointer;
-}
-
-.hex:hover { transform: scale(1.08); z-index: 10; color: var(--text); }
-
-/* white fill sits 2px inside the grey border */
-.hex-fill {
-  position: absolute;
-  inset: 2px;
+  /* width/height set by JS */
   clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
   background: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
+  text-decoration: none;
+  color: var(--text);
+  transition: filter 0.15s ease;
+  cursor: pointer;
 }
+
+/* Canvas overlay draws one line per edge — no CSS border needed */
+.hex:hover { filter: brightness(0.94); color: var(--text); }
 
 .hex-inner {
   display: flex;

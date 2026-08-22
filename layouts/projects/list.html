@@ -14,12 +14,10 @@
     {{ range hugo.Data.projects }}
     {{ range .items }}
     <a class="hex" href="{{ .url }}" target="_blank" rel="noopener" title="{{ .description }}">
-      <div class="hex-fill">
-        <div class="hex-inner">
-          {{ with .icon }}<span class="hex-icon">{{ . }}</span>{{ end }}
-          <span class="hex-name">{{ .name }}</span>
-          {{ if .live }}<span class="hex-live">↗</span>{{ end }}
-        </div>
+      <div class="hex-inner">
+        {{ with .icon }}<span class="hex-icon">{{ . }}</span>{{ end }}
+        <span class="hex-name">{{ .name }}</span>
+        {{ if .live }}<span class="hex-live">↗</span>{{ end }}
       </div>
     </a>
     {{ end }}
@@ -33,8 +31,6 @@
   var wrap      = container.parentElement;
   var hexEls    = Array.from(container.querySelectorAll('.hex'));
 
-  // No per-hex colour variation — fill handled by .hex-fill in CSS
-
   // Organic branching layout – flat-top axial [q, r]
   var positions = [
     [ 0,  0],
@@ -47,40 +43,32 @@
     [-1, -1],
   ];
 
-  // Pin the wrap flush below the header, full viewport width (position:fixed handles width)
+  // Pin the wrap flush below the header
   function sizeWrap() {
-    var hdrH = (document.querySelector('.site-header') || {offsetHeight: 0}).offsetHeight;
+    var hdrH = (document.querySelector('.site-header') || {offsetHeight:0}).offsetHeight;
     wrap.style.top    = hdrH + 'px';
     wrap.style.height = (window.innerHeight - hdrH) + 'px';
   }
   sizeWrap();
   window.addEventListener('resize', sizeWrap);
 
-  // Gap between hex edges (px). The hex-wrap background shows through as the border.
-  // With uniform GAP, shared edges and outer edges are identical width.
-  var GAP = 3;
-
-  // Fit all hexes inside the viewport with a small margin.
-  // Layout spans ~15.5·S wide and ~5.5·√3·S tall (flat-top axial geometry).
+  // Scale S to fit all hexes inside the viewport
+  // Layout spans ~15.5·S wide and ~5.5·√3·S tall
   var sFromW = (wrap.offsetWidth  * 0.94) / 15.5;
   var sFromH = (wrap.offsetHeight * 0.94) / (5.5 * Math.sqrt(3));
   var S   = Math.max(40, Math.min(85, Math.floor(Math.min(sFromW, sFromH))));
   var W   = S * 2;
   var H   = S * Math.sqrt(3);
-  var spc = S + GAP / 2;  // centre-to-centre spacing includes the gap
+  // GAP=0: hexes share edges exactly so one canvas line = one visible border
+  var spc = S;
 
-  // Set each hex element's size
   hexEls.forEach(function (el) {
     el.style.width  = W + 'px';
     el.style.height = H + 'px';
   });
 
-  // Flat-top axial → pixel
   function toPixel(q, r) {
-    return {
-      x: spc * 1.5 * q,
-      y: spc * Math.sqrt(3) * (r + q / 2)
-    };
+    return { x: spc * 1.5 * q, y: spc * Math.sqrt(3) * (r + q / 2) };
   }
 
   var coords = positions.slice(0, hexEls.length).map(function (p) { return toPixel(p[0], p[1]); });
@@ -89,31 +77,77 @@
   var maxX = Math.max.apply(null, coords.map(function (c) { return c.x; }));
   var maxY = Math.max.apply(null, coords.map(function (c) { return c.y; }));
 
-  container.style.width  = (maxX - minX + W) + 'px';
-  container.style.height = (maxY - minY + H) + 'px';
+  var contW = maxX - minX + W;
+  var contH = maxY - minY + H;
+  container.style.width  = contW + 'px';
+  container.style.height = contH + 'px';
 
   hexEls.forEach(function (el, i) {
     el.style.left = (coords[i].x - minX) + 'px';
     el.style.top  = (coords[i].y - minY) + 'px';
   });
 
-  // ── Pan / drag with inertia ───────────────────────────────────────────────
-  var contW = parseFloat(container.style.width);
-  var contH = parseFloat(container.style.height);
+  // ── Canvas border layer ────────────────────────────────────────────────────
+  // Draw each hex edge exactly once: shared edges and outer edges are identical.
+  // Canvas sits above the hex elements (appended last) with pointer-events:none.
+  var DPR = window.devicePixelRatio || 1;
+  var cv  = document.createElement('canvas');
+  cv.style.cssText = 'position:absolute;top:0;left:0;pointer-events:none;';
+  cv.style.width   = contW + 'px';
+  cv.style.height  = contH + 'px';
+  cv.width  = Math.round(contW * DPR);
+  cv.height = Math.round(contH * DPR);
+  container.appendChild(cv);
 
+  var ctx = cv.getContext('2d');
+  ctx.scale(DPR, DPR);
+  ctx.strokeStyle = '#d1d5db';
+  ctx.lineWidth   = 1.5;
+  ctx.lineJoin    = 'round';
+  ctx.lineCap     = 'round';
+
+  // Fast neighbour lookup: "q,r" → index
+  var posMap = {};
+  positions.slice(0, hexEls.length).forEach(function (p, i) { posMap[p[0]+','+p[1]] = i; });
+
+  // Flat-top axial neighbours; direction d shares edge between vertex d and (d+1)%6
+  var dirs = [[1,0],[0,1],[-1,1],[-1,0],[0,-1],[1,-1]];
+
+  positions.slice(0, hexEls.length).forEach(function (p, i) {
+    var cx = coords[i].x - minX;
+    var cy = coords[i].y - minY;
+
+    // Flat-top vertices at 0°, 60°, 120°, 180°, 240°, 300°
+    var verts = [];
+    for (var a = 0; a < 6; a++) {
+      var ang = Math.PI * a / 3;
+      verts.push([cx + S * Math.cos(ang), cy + S * Math.sin(ang)]);
+    }
+
+    for (var d = 0; d < 6; d++) {
+      var nb = posMap[(p[0]+dirs[d][0])+','+(p[1]+dirs[d][1])];
+      // Draw edge only if outer (no neighbour) or this hex has lower index → each edge once
+      if (nb === undefined || i < nb) {
+        ctx.beginPath();
+        ctx.moveTo(verts[d][0],           verts[d][1]);
+        ctx.lineTo(verts[(d+1)%6][0],     verts[(d+1)%6][1]);
+        ctx.stroke();
+      }
+    }
+  });
+
+  // ── Pan / drag with inertia ───────────────────────────────────────────────
   var tx = (wrap.offsetWidth  - contW) / 2;
   var ty = (wrap.offsetHeight - contH) / 2;
   container.style.transform = 'translate(' + tx + 'px,' + ty + 'px)';
 
   var dragging = false, moved = false;
   var sx = 0, sy = 0, vx = 0, vy = 0;
-  var prevX = 0, prevY = 0, prevT = 0;
-  var raf = null;
+  var prevX = 0, prevY = 0, prevT = 0, raf = null;
 
   function applyTransform() {
     container.style.transform = 'translate(' + tx + 'px,' + ty + 'px)';
   }
-
   function startDrag(px, py) {
     dragging = true; moved = false;
     sx = px - tx; sy = py - ty;
@@ -122,7 +156,6 @@
     cancelAnimationFrame(raf);
     wrap.classList.add('dragging');
   }
-
   function moveDrag(px, py) {
     if (!dragging) return;
     var nx = px - sx, ny = py - sy;
@@ -133,7 +166,6 @@
     tx = nx; ty = ny;
     applyTransform();
   }
-
   function endDrag() {
     if (!dragging) return;
     dragging = false;
@@ -148,23 +180,18 @@
 
   wrap.addEventListener('mousedown', function (e) {
     if (e.button !== 0) return;
-    startDrag(e.clientX, e.clientY);
-    e.preventDefault();
+    startDrag(e.clientX, e.clientY); e.preventDefault();
   });
   window.addEventListener('mousemove', function (e) { moveDrag(e.clientX, e.clientY); });
   window.addEventListener('mouseup', endDrag);
-
   wrap.addEventListener('click', function (e) {
     if (moved) { e.preventDefault(); e.stopPropagation(); moved = false; }
   }, true);
-
   wrap.addEventListener('touchstart', function (e) {
-    startDrag(e.touches[0].clientX, e.touches[0].clientY);
-    e.preventDefault();
+    startDrag(e.touches[0].clientX, e.touches[0].clientY); e.preventDefault();
   }, { passive: false });
   wrap.addEventListener('touchmove', function (e) {
-    moveDrag(e.touches[0].clientX, e.touches[0].clientY);
-    e.preventDefault();
+    moveDrag(e.touches[0].clientX, e.touches[0].clientY); e.preventDefault();
   }, { passive: false });
   wrap.addEventListener('touchend',    endDrag);
   wrap.addEventListener('touchcancel', endDrag);
