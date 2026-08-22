@@ -1,44 +1,79 @@
 {{ define "main" }}
-
 {{ $colors := dict "Agentic & AI" "#ddd6fe" "CLI Tools" "#bbf7d0" "Web & Apps" "#bfdbfe" "Other" "#fde68a" }}
 
-<div class="octo-grid" id="octo-grid">
-  {{ range hugo.Data.projects }}
-  {{ $cat := .category }}
-  {{ $bg := index $colors $cat | default "#e5e7eb" }}
-  {{ range .items }}
-  <a class="octo"
-     href="{{ .url }}"
-     target="_blank"
-     rel="noopener"
-     style="--octo-bg: {{ $bg }}"
-     data-name="{{ .name }}"
-     data-live="{{ .live }}"
-     title="{{ .description }}">
-    <div class="octo-inner">
-      {{ with .icon }}<span class="octo-icon">{{ . }}</span>{{ end }}
-      <span class="octo-name">{{ .name }}</span>
-      {{ if .live }}<span class="octo-live">↗</span>{{ end }}
-    </div>
-  </a>
-  {{ end }}
-  {{ end }}
+<div class="hex-wrap">
+  <div class="hex-container" id="hex-container">
+    {{ range hugo.Data.projects }}
+    {{ $bg := index $colors .category | default "#e5e7eb" }}
+    {{ range .items }}
+    <a class="hex" href="{{ .url }}" target="_blank" rel="noopener"
+       style="--hex-bg: {{ $bg }}" title="{{ .description }}">
+      <div class="hex-inner">
+        {{ with .icon }}<span class="hex-icon">{{ . }}</span>{{ end }}
+        <span class="hex-name">{{ .name }}</span>
+        {{ if .live }}<span class="hex-live">↗</span>{{ end }}
+      </div>
+    </a>
+    {{ end }}
+    {{ end }}
+  </div>
 </div>
 
-<div class="octo-legend">
+<div class="hex-legend">
   {{ range $cat, $bg := $colors }}
-  <span class="octo-legend-item" style="--octo-bg: {{ $bg }}">{{ $cat }}</span>
+  <span class="hex-legend-item" style="--hex-bg: {{ $bg }}">{{ $cat }}</span>
   {{ end }}
 </div>
 
 <script>
-(function() {
-  const items = document.querySelectorAll('.octo');
-  items.forEach(function(el, i) {
-    const rx = (Math.sin(i * 127.1) * 0.5 + 0.5) * 24 - 12;
-    const ry = (Math.sin(i * 311.7) * 0.5 + 0.5) * 20 - 10;
-    el.style.marginLeft = rx + 'px';
-    el.style.marginTop = ry + 'px';
+(function () {
+  const container = document.getElementById('hex-container');
+  const hexEls = Array.from(container.querySelectorAll('.hex'));
+
+  const S   = 85;                   // circumradius (px)
+  const W   = S * 2;                // 170px tip-to-tip
+  const H   = S * Math.sqrt(3);     // ≈147px flat-to-flat
+  const GAP = 6;                    // gap between hexes
+  const spc = S + GAP / 2;         // effective spacing radius
+
+  // Generate axial hex positions (flat-top) sorted outward from centre
+  function hexRange(radius) {
+    const pos = [];
+    for (let q = -radius; q <= radius; q++) {
+      for (let r = Math.max(-radius, -q - radius); r <= Math.min(radius, -q + radius); r++) {
+        pos.push([q, r]);
+      }
+    }
+    pos.sort(function (a, b) {
+      const da = Math.max(Math.abs(a[0]), Math.abs(a[1]), Math.abs(-a[0] - a[1]));
+      const db = Math.max(Math.abs(b[0]), Math.abs(b[1]), Math.abs(-b[0] - b[1]));
+      return da !== db ? da - db : Math.atan2(a[1], a[0]) - Math.atan2(b[1], b[0]);
+    });
+    return pos;
+  }
+
+  // Flat-top axial → pixel
+  function toPixel(q, r) {
+    return {
+      x: spc * 1.5 * q,
+      y: spc * Math.sqrt(3) * (r + q / 2)
+    };
+  }
+
+  const positions = hexRange(3).slice(0, hexEls.length);
+  const coords    = positions.map(function ([q, r]) { return toPixel(q, r); });
+
+  const minX = Math.min.apply(null, coords.map(function (c) { return c.x; }));
+  const minY = Math.min.apply(null, coords.map(function (c) { return c.y; }));
+  const maxX = Math.max.apply(null, coords.map(function (c) { return c.x; }));
+  const maxY = Math.max.apply(null, coords.map(function (c) { return c.y; }));
+
+  container.style.width  = (maxX - minX + W) + 'px';
+  container.style.height = (maxY - minY + H) + 'px';
+
+  hexEls.forEach(function (el, i) {
+    el.style.left = (coords[i].x - minX) + 'px';
+    el.style.top  = (coords[i].y - minY) + 'px';
   });
 })();
 </script>

@@ -197,80 +197,81 @@ main h1 { margin-bottom: 1.75rem; }
 .album-link-btn:hover { background: var(--accent-hover); color: #fff; }
 
 /* ── Projects ── */
-.octo-grid {
+.hex-wrap {
   display: flex;
-  flex-wrap: wrap;
   justify-content: center;
-  align-items: center;
-  gap: 10px;
+  overflow-x: auto;
   padding: 1rem 0 2rem;
+  /* break out of the .container max-width */
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  margin-right: calc(-50vw + 50%);
 }
 
-.octo {
-  width: 150px;
-  height: 150px;
-  clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
-  background: var(--octo-bg, #e5e7eb);
+.hex-container {
+  position: relative;
+  /* width/height set by JS */
+}
+
+.hex {
+  position: absolute;
+  width: 170px;
+  height: 147px; /* 170 × (√3/2) */
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+  background: var(--hex-bg, #e5e7eb);
   display: flex;
   align-items: center;
   justify-content: center;
   text-decoration: none;
   color: var(--text);
-  flex-shrink: 0;
   transition: transform 0.18s ease, filter 0.18s ease;
   cursor: pointer;
 }
 
-.octo:hover {
+.hex:hover {
   transform: scale(1.1);
-  filter: brightness(0.93);
+  filter: brightness(0.9);
+  z-index: 10;
   color: var(--text);
 }
 
-.octo-inner {
+.hex-inner {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.3rem;
-  padding: 1rem;
+  gap: 0.25rem;
+  padding: 0.5rem 1.75rem;
   text-align: center;
-  width: 100%;
-  height: 100%;
+  pointer-events: none;
 }
 
-.octo-icon { font-size: 1.6rem; line-height: 1; }
+.hex-icon { font-size: 1.5rem; line-height: 1; }
 
-.octo-name {
-  font-size: 0.72rem;
+.hex-name {
+  font-size: 0.68rem;
   font-weight: 600;
-  line-height: 1.3;
+  line-height: 1.25;
   word-break: break-word;
   hyphens: auto;
 }
 
-.octo-live { font-size: 0.75rem; opacity: 0.6; }
+.hex-live { font-size: 0.7rem; opacity: 0.5; }
 
-.octo-legend {
+.hex-legend {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 0.6rem;
-  margin-top: 1rem;
+  margin-top: 0.5rem;
 }
 
-.octo-legend-item {
+.hex-legend-item {
   font-size: 0.75rem;
   padding: 0.25rem 0.75rem;
   border-radius: 99px;
-  background: var(--octo-bg);
+  background: var(--hex-bg);
   color: var(--text);
-}
-
-@media (max-width: 500px) {
-  .octo { width: 110px; height: 110px; }
-  .octo-icon { font-size: 1.2rem; }
-  .octo-name { font-size: 0.65rem; }
 }
 
 /* ── Tools ── */
