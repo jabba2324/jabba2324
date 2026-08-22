@@ -197,29 +197,81 @@ main h1 { margin-bottom: 1.75rem; }
 .album-link-btn:hover { background: var(--accent-hover); color: #fff; }
 
 /* ── Projects ── */
-.project-category { margin-bottom: 2.5rem; }
-.project-category h2 {
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--muted);
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 0.3rem;
-  margin-bottom: 1rem;
+.octo-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding: 1rem 0 2rem;
 }
-.project-list { list-style: none; display: grid; gap: 0.75rem; }
-.project-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 0.9rem 1.1rem;
+
+.octo {
+  width: 150px;
+  height: 150px;
+  clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+  background: var(--octo-bg, #e5e7eb);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: var(--text);
+  flex-shrink: 0;
+  transition: transform 0.18s ease, filter 0.18s ease;
+  cursor: pointer;
 }
-.project-header { display: flex; align-items: baseline; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.3rem; }
-.project-icon { font-size: 1rem; line-height: 1; }
-.project-name { font-size: 0.95rem; font-weight: bold; text-decoration: none; font-family: var(--font-mono); }
-.project-live { font-size: 0.8rem; color: var(--accent); text-decoration: none; margin-left: auto; }
-.project-live:hover { text-decoration: underline; }
-.project-desc { font-size: 0.875rem; color: var(--muted); margin: 0; }
+
+.octo:hover {
+  transform: scale(1.1);
+  filter: brightness(0.93);
+  color: var(--text);
+}
+
+.octo-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  padding: 1rem;
+  text-align: center;
+  width: 100%;
+  height: 100%;
+}
+
+.octo-icon { font-size: 1.6rem; line-height: 1; }
+
+.octo-name {
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.3;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+.octo-live { font-size: 0.75rem; opacity: 0.6; }
+
+.octo-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.octo-legend-item {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 99px;
+  background: var(--octo-bg);
+  color: var(--text);
+}
+
+@media (max-width: 500px) {
+  .octo { width: 110px; height: 110px; }
+  .octo-icon { font-size: 1.2rem; }
+  .octo-name { font-size: 0.65rem; }
+}
 
 /* ── Tools ── */
 .tools-list { list-style: none; display: grid; gap: 1rem; }

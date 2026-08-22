@@ -1,23 +1,45 @@
 {{ define "main" }}
 
-{{ .Content }}
+{{ $colors := dict "Agentic & AI" "#ddd6fe" "CLI Tools" "#bbf7d0" "Web & Apps" "#bfdbfe" "Other" "#fde68a" }}
 
-{{ range hugo.Data.projects }}
-<section class="project-category">
-  <h2>{{ .category }}</h2>
-  <ul class="project-list">
-    {{ range .items }}
-    <li class="project-card">
-      <div class="project-header">
-        {{ with .icon }}<span class="project-icon">{{ . }}</span>{{ end }}
-        <a class="project-name" href="{{ .url }}" target="_blank" rel="noopener">{{ .name }}</a>
-        {{ with .lang }}<span class="tag">{{ . }}</span>{{ end }}
-        {{ with .live }}<a class="project-live" href="{{ . }}" target="_blank" rel="noopener">↗ live</a>{{ end }}
-      </div>
-      <p class="project-desc">{{ .description }}</p>
-    </li>
-    {{ end }}
-  </ul>
-</section>
-{{ end }}
+<div class="octo-grid" id="octo-grid">
+  {{ range hugo.Data.projects }}
+  {{ $cat := .category }}
+  {{ $bg := index $colors $cat | default "#e5e7eb" }}
+  {{ range .items }}
+  <a class="octo"
+     href="{{ .url }}"
+     target="_blank"
+     rel="noopener"
+     style="--octo-bg: {{ $bg }}"
+     data-name="{{ .name }}"
+     data-live="{{ .live }}"
+     title="{{ .description }}">
+    <div class="octo-inner">
+      {{ with .icon }}<span class="octo-icon">{{ . }}</span>{{ end }}
+      <span class="octo-name">{{ .name }}</span>
+      {{ if .live }}<span class="octo-live">↗</span>{{ end }}
+    </div>
+  </a>
+  {{ end }}
+  {{ end }}
+</div>
+
+<div class="octo-legend">
+  {{ range $cat, $bg := $colors }}
+  <span class="octo-legend-item" style="--octo-bg: {{ $bg }}">{{ $cat }}</span>
+  {{ end }}
+</div>
+
+<script>
+(function() {
+  const items = document.querySelectorAll('.octo');
+  items.forEach(function(el, i) {
+    const rx = (Math.sin(i * 127.1) * 0.5 + 0.5) * 24 - 12;
+    const ry = (Math.sin(i * 311.7) * 0.5 + 0.5) * 20 - 10;
+    el.style.marginLeft = rx + 'px';
+    el.style.marginTop = ry + 'px';
+  });
+})();
+</script>
 {{ end }}
