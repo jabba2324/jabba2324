@@ -1,3 +1,12 @@
+{{ define "pagefooter" }}{{ end }}
+
+{{ define "head" }}
+<style>
+  /* projects page: remove main padding so hex fills edge-to-edge */
+  main { padding: 0 !important; margin: 0 !important; }
+</style>
+{{ end }}
+
 {{ define "main" }}
 
 <div class="hex-wrap">
@@ -77,6 +86,14 @@
   var wrap = container.parentElement;
   var contW = parseFloat(container.style.width);
   var contH = parseFloat(container.style.height);
+
+  // Fill the viewport below the header
+  function sizeWrap() {
+    var hdr = document.querySelector('.site-header');
+    wrap.style.height = (window.innerHeight - (hdr ? hdr.offsetHeight : 0)) + 'px';
+  }
+  sizeWrap();
+  window.addEventListener('resize', sizeWrap);
 
   // Centre layout in the viewport initially
   var tx = (wrap.offsetWidth  - contW) / 2;

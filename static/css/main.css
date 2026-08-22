@@ -202,8 +202,7 @@ main h1 { margin-bottom: 1.75rem; }
   width: 100vw;
   margin-left: calc(-50vw + 50%);
   margin-right: calc(-50vw + 50%);
-  height: 72vh;
-  min-height: 480px;
+  height: 72vh; /* fallback — overridden by JS on load */
   overflow: hidden;
   cursor: grab;
   user-select: none;

@@ -38,10 +38,12 @@
     {{ block "main" . }}{{ end }}
   </main>
 
+  {{ block "pagefooter" . }}
   <footer class="site-footer">
     <div class="container">
       <p>© {{ now.Year }} {{ .Site.Params.author }}</p>
     </div>
   </footer>
+  {{ end }}
 </body>
 </html>
