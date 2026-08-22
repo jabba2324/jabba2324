@@ -1,17 +1,16 @@
 {{ define "main" }}
-{{ $colors := dict "Agentic & AI" "#ddd6fe" "CLI Tools" "#bbf7d0" "Web & Apps" "#bfdbfe" "Other" "#fde68a" }}
 
 <div class="hex-wrap">
   <div class="hex-container" id="hex-container">
     {{ range hugo.Data.projects }}
-    {{ $bg := index $colors .category | default "#e5e7eb" }}
     {{ range .items }}
-    <a class="hex" href="{{ .url }}" target="_blank" rel="noopener"
-       style="--hex-bg: {{ $bg }}" title="{{ .description }}">
-      <div class="hex-inner">
-        {{ with .icon }}<span class="hex-icon">{{ . }}</span>{{ end }}
-        <span class="hex-name">{{ .name }}</span>
-        {{ if .live }}<span class="hex-live">↗</span>{{ end }}
+    <a class="hex" href="{{ .url }}" target="_blank" rel="noopener" title="{{ .description }}">
+      <div class="hex-fill">
+        <div class="hex-inner">
+          {{ with .icon }}<span class="hex-icon">{{ . }}</span>{{ end }}
+          <span class="hex-name">{{ .name }}</span>
+          {{ if .live }}<span class="hex-live">↗</span>{{ end }}
+        </div>
       </div>
     </a>
     {{ end }}
@@ -19,24 +18,19 @@
   </div>
 </div>
 
-<div class="hex-legend">
-  {{ range $cat, $bg := $colors }}
-  <span class="hex-legend-item" style="--hex-bg: {{ $bg }}">{{ $cat }}</span>
-  {{ end }}
-</div>
-
 <script>
 (function () {
   const container = document.getElementById('hex-container');
   const hexEls = Array.from(container.querySelectorAll('.hex'));
 
-  const S   = 85;                   // circumradius (px)
-  const W   = S * 2;                // 170px tip-to-tip
-  const H   = S * Math.sqrt(3);     // ≈147px flat-to-flat
-  const GAP = 6;                    // gap between hexes
-  const spc = S + GAP / 2;         // effective spacing radius
+  const S   = 85;
+  const W   = S * 2;
+  const H   = S * Math.sqrt(3);
+  const GAP = 6;
+  const spc = S + GAP / 2;
 
-  // Generate axial hex positions (flat-top) sorted outward from centre
+  const greys = ['#e8e8e8','#e2e2e2','#ececec','#d8d8d8','#f0f0f0','#e6e6e6','#dadada'];
+
   function hexRange(radius) {
     const pos = [];
     for (let q = -radius; q <= radius; q++) {
@@ -52,7 +46,6 @@
     return pos;
   }
 
-  // Flat-top axial → pixel
   function toPixel(q, r) {
     return {
       x: spc * 1.5 * q,
@@ -74,6 +67,7 @@
   hexEls.forEach(function (el, i) {
     el.style.left = (coords[i].x - minX) + 'px';
     el.style.top  = (coords[i].y - minY) + 'px';
+    el.querySelector('.hex-fill').style.background = greys[i % greys.length];
   });
 })();
 </script>
