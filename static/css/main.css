@@ -239,25 +239,28 @@ main { padding: 5rem 0 1rem; }
 .cv-header { margin-bottom: 2rem; }
 .cv-header-top {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  text-align: center;
-  gap: 1rem;
+  gap: 1.75rem;
   margin-bottom: 1.5rem;
 }
 .cv-profile-pic {
-  width: 120px;
-  height: 120px;
+  width: 110px;
+  height: 110px;
   border-radius: 50%;
   object-fit: cover;
   object-position: center center;
+  flex-shrink: 0;
   border: 3px solid var(--border);
   box-shadow: 0 4px 16px rgba(0,0,0,0.1);
 }
-.cv-header-info { display: flex; flex-direction: column; align-items: center; }
 .cv-header-info h1 { font-size: 1.8rem; margin-bottom: 0.2rem; }
 .cv-header-info .cv-tagline { color: var(--muted); margin-bottom: 0.5rem; }
-.cv-header-info .profile-bio { font-size: 0.9rem; color: var(--muted); margin-bottom: 0.85rem; max-width: 480px; }
+.cv-header-info .profile-bio { font-size: 0.9rem; color: var(--muted); margin-bottom: 0.85rem; }
+@media (max-width: 480px) {
+  .cv-header-top { flex-direction: column; }
+  .cv-profile-pic { width: 90px; height: 90px; }
+}
 .cv-header h1 { font-size: 2rem; margin-bottom: 0.25rem; }
 .cv-tagline { color: var(--muted); margin-bottom: 1rem; }
 
