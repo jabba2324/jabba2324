@@ -1,10 +1,11 @@
 {{ define "main" }}
 <article class="cv">
+  <h1>{{ .Title }}</h1>
+
   <header class="cv-header">
     <div class="cv-header-top">
       <img class="cv-profile-pic" src="/assets/profile.jpeg" alt="Chris Sewell">
       <div class="cv-header-info">
-        <h1>{{ .Title }}</h1>
         {{ with .Params.tagline }}<p class="cv-tagline">{{ . }}</p>{{ end }}
         <p class="profile-bio">{{ .Site.Params.bio }}</p>
         <a class="profile-cv-btn" href="/assets/profile.pdf" download>↓ Download CV</a>
