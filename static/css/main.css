@@ -205,8 +205,7 @@ main h1 { margin-bottom: 1.75rem; }
   bottom: 0;
   /* top + height set by JS to sit flush below the header */
   overflow: hidden;
-  /* subtle grey background = the gap/border colour between hexes */
-  background: #c8c8c8;
+  background: #f5f5f5; /* match site --bg */
   cursor: grab;
   user-select: none;
   -webkit-user-select: none;
@@ -226,21 +225,24 @@ main h1 { margin-bottom: 1.75rem; }
   position: absolute;
   /* width/height set by JS based on viewport */
   clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
-  background: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: #d1d5db; /* subtle grey — the border layer */
   text-decoration: none;
   color: var(--text);
   transition: transform 0.18s ease, filter 0.18s ease;
   cursor: pointer;
 }
 
-.hex:hover {
-  transform: scale(1.08);
-  filter: brightness(0.93);
-  z-index: 10;
-  color: var(--text);
+.hex:hover { transform: scale(1.08); z-index: 10; color: var(--text); }
+
+/* white fill sits 2px inside the grey border */
+.hex-fill {
+  position: absolute;
+  inset: 2px;
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .hex-inner {

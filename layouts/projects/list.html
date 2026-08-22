@@ -14,10 +14,12 @@
     {{ range hugo.Data.projects }}
     {{ range .items }}
     <a class="hex" href="{{ .url }}" target="_blank" rel="noopener" title="{{ .description }}">
-      <div class="hex-inner">
-        {{ with .icon }}<span class="hex-icon">{{ . }}</span>{{ end }}
-        <span class="hex-name">{{ .name }}</span>
-        {{ if .live }}<span class="hex-live">↗</span>{{ end }}
+      <div class="hex-fill">
+        <div class="hex-inner">
+          {{ with .icon }}<span class="hex-icon">{{ . }}</span>{{ end }}
+          <span class="hex-name">{{ .name }}</span>
+          {{ if .live }}<span class="hex-live">↗</span>{{ end }}
+        </div>
       </div>
     </a>
     {{ end }}
@@ -31,7 +33,7 @@
   var wrap      = container.parentElement;
   var hexEls    = Array.from(container.querySelectorAll('.hex'));
 
-  var greys = ['#ffffff']; // all white — grey gap from hex-wrap background acts as border
+  // No per-hex colour variation — fill handled by .hex-fill in CSS
 
   // Organic branching layout – flat-top axial [q, r]
   var positions = [
@@ -91,9 +93,8 @@
   container.style.height = (maxY - minY + H) + 'px';
 
   hexEls.forEach(function (el, i) {
-    el.style.left       = (coords[i].x - minX) + 'px';
-    el.style.top        = (coords[i].y - minY) + 'px';
-    el.style.background = greys[i % greys.length];
+    el.style.left = (coords[i].x - minX) + 'px';
+    el.style.top  = (coords[i].y - minY) + 'px';
   });
 
   // ── Pan / drag with inertia ───────────────────────────────────────────────
