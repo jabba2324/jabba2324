@@ -31,7 +31,7 @@
   var wrap      = container.parentElement;
   var hexEls    = Array.from(container.querySelectorAll('.hex'));
 
-  var greys = ['#e8e8e8','#e2e2e2','#ececec','#d8d8d8','#f0f0f0','#e6e6e6','#dadada'];
+  var greys = ['#ffffff']; // all white — grey gap from hex-wrap background acts as border
 
   // Organic branching layout – flat-top axial [q, r]
   var positions = [
@@ -45,10 +45,11 @@
     [-1, -1],
   ];
 
-  // Size the wrap to fill below the header
+  // Pin the wrap flush below the header, full viewport width (position:fixed handles width)
   function sizeWrap() {
-    var hdr = document.querySelector('.site-header');
-    wrap.style.height = (window.innerHeight - (hdr ? hdr.offsetHeight : 0)) + 'px';
+    var hdrH = (document.querySelector('.site-header') || {offsetHeight: 0}).offsetHeight;
+    wrap.style.top    = hdrH + 'px';
+    wrap.style.height = (window.innerHeight - hdrH) + 'px';
   }
   sizeWrap();
   window.addEventListener('resize', sizeWrap);

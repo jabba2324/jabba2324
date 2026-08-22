@@ -198,16 +198,15 @@ main h1 { margin-bottom: 1.75rem; }
 
 /* ── Projects ── */
 .hex-wrap {
-  position: relative;
-  width: 100vw;
-  margin-left: calc(-50vw + 50%);
-  margin-right: calc(-50vw + 50%);
-  height: 72vh; /* fallback — overridden by JS on load */
+  /* Fixed to the viewport — no width/margin tricks needed, no scrollbar gap */
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /* top + height set by JS to sit flush below the header */
   overflow: hidden;
-  /* turquoise background acts as the universal border colour;
-     the GAP between hex shapes lets it show through uniformly
-     on both shared edges and outer edges */
-  background: #4ecdc4;
+  /* subtle grey background = the gap/border colour between hexes */
+  background: #c8c8c8;
   cursor: grab;
   user-select: none;
   -webkit-user-select: none;
@@ -227,7 +226,7 @@ main h1 { margin-bottom: 1.75rem; }
   position: absolute;
   /* width/height set by JS based on viewport */
   clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
-  background: #e8e8e8; /* overridden per-hex by JS */
+  background: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
