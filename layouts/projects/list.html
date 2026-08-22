@@ -14,12 +14,10 @@
     {{ range hugo.Data.projects }}
     {{ range .items }}
     <a class="hex" href="{{ .url }}" target="_blank" rel="noopener" title="{{ .description }}">
-      <div class="hex-fill">
-        <div class="hex-inner">
-          {{ with .icon }}<span class="hex-icon">{{ . }}</span>{{ end }}
-          <span class="hex-name">{{ .name }}</span>
-          {{ if .live }}<span class="hex-live">↗</span>{{ end }}
-        </div>
+      <div class="hex-inner">
+        {{ with .icon }}<span class="hex-icon">{{ . }}</span>{{ end }}
+        <span class="hex-name">{{ .name }}</span>
+        {{ if .live }}<span class="hex-live">↗</span>{{ end }}
       </div>
     </a>
     {{ end }}
@@ -29,65 +27,25 @@
 
 <script>
 (function () {
-  const container = document.getElementById('hex-container');
-  const hexEls = Array.from(container.querySelectorAll('.hex'));
+  var container = document.getElementById('hex-container');
+  var wrap      = container.parentElement;
+  var hexEls    = Array.from(container.querySelectorAll('.hex'));
 
-  const S = 85;
-  const W = S * 2;
-  const H = S * Math.sqrt(3);
+  var greys = ['#e8e8e8','#e2e2e2','#ececec','#d8d8d8','#f0f0f0','#e6e6e6','#dadada'];
 
-  const greys = ['#e8e8e8','#e2e2e2','#ececec','#d8d8d8','#f0f0f0','#e6e6e6','#dadada'];
-
-  // Organic branching layout – three arms from centre, shared edges (GAP=0).
-  // Flat-top axial [q, r]. Each pair of axial neighbours shares a hex edge.
-  const positions = [
-    [ 0,  0],                          // centre
-
-    // Arm 1 – diagonal right
+  // Organic branching layout – flat-top axial [q, r]
+  var positions = [
+    [ 0,  0],
     [ 1, -1], [ 2, -1], [ 3, -2], [ 4, -2], [ 5, -3],
-    [ 2,  0], [ 3,  0],               // branch hanging below arm 1
-
-    // Arm 2 – down and left
+    [ 2,  0], [ 3,  0],
     [-1,  1], [-1,  2], [-2,  2], [-2,  3],
-    [ 0,  1], [ 0,  2],               // branch alongside arm 2
-
-    // Arm 3 – left
+    [ 0,  1], [ 0,  2],
     [-1,  0], [-2,  0], [-3,  0], [-4,  0],
-    [-2, -1], [-3, -1],               // branch below arm 3
-
-    [-1, -1],                         // extra spur off centre
+    [-2, -1], [-3, -1],
+    [-1, -1],
   ];
 
-  // Flat-top axial → pixel (no gap: spc = S)
-  function toPixel(q, r) {
-    return {
-      x: S * 1.5 * q,
-      y: S * Math.sqrt(3) * (r + q / 2)
-    };
-  }
-
-  const coords = positions.slice(0, hexEls.length).map(function (p) { return toPixel(p[0], p[1]); });
-
-  const minX = Math.min.apply(null, coords.map(function (c) { return c.x; }));
-  const minY = Math.min.apply(null, coords.map(function (c) { return c.y; }));
-  const maxX = Math.max.apply(null, coords.map(function (c) { return c.x; }));
-  const maxY = Math.max.apply(null, coords.map(function (c) { return c.y; }));
-
-  container.style.width  = (maxX - minX + W) + 'px';
-  container.style.height = (maxY - minY + H) + 'px';
-
-  hexEls.forEach(function (el, i) {
-    el.style.left = (coords[i].x - minX) + 'px';
-    el.style.top  = (coords[i].y - minY) + 'px';
-    el.querySelector('.hex-fill').style.background = greys[i % greys.length];
-  });
-
-  // ── Pan / drag (mouse + touch, with inertia) ──────────────────────────────
-  var wrap = container.parentElement;
-  var contW = parseFloat(container.style.width);
-  var contH = parseFloat(container.style.height);
-
-  // Fill the viewport below the header
+  // Size the wrap to fill below the header
   function sizeWrap() {
     var hdr = document.querySelector('.site-header');
     wrap.style.height = (window.innerHeight - (hdr ? hdr.offsetHeight : 0)) + 'px';
@@ -95,14 +53,58 @@
   sizeWrap();
   window.addEventListener('resize', sizeWrap);
 
-  // Centre layout in the viewport initially
+  // Gap between hex edges (px). The hex-wrap background shows through as the border.
+  // With uniform GAP, shared edges and outer edges are identical width.
+  var GAP = 3;
+
+  // Fit all hexes inside the viewport with a small margin.
+  // Layout spans ~15.5·S wide and ~5.5·√3·S tall (flat-top axial geometry).
+  var sFromW = (wrap.offsetWidth  * 0.94) / 15.5;
+  var sFromH = (wrap.offsetHeight * 0.94) / (5.5 * Math.sqrt(3));
+  var S   = Math.max(40, Math.min(85, Math.floor(Math.min(sFromW, sFromH))));
+  var W   = S * 2;
+  var H   = S * Math.sqrt(3);
+  var spc = S + GAP / 2;  // centre-to-centre spacing includes the gap
+
+  // Set each hex element's size
+  hexEls.forEach(function (el) {
+    el.style.width  = W + 'px';
+    el.style.height = H + 'px';
+  });
+
+  // Flat-top axial → pixel
+  function toPixel(q, r) {
+    return {
+      x: spc * 1.5 * q,
+      y: spc * Math.sqrt(3) * (r + q / 2)
+    };
+  }
+
+  var coords = positions.slice(0, hexEls.length).map(function (p) { return toPixel(p[0], p[1]); });
+  var minX = Math.min.apply(null, coords.map(function (c) { return c.x; }));
+  var minY = Math.min.apply(null, coords.map(function (c) { return c.y; }));
+  var maxX = Math.max.apply(null, coords.map(function (c) { return c.x; }));
+  var maxY = Math.max.apply(null, coords.map(function (c) { return c.y; }));
+
+  container.style.width  = (maxX - minX + W) + 'px';
+  container.style.height = (maxY - minY + H) + 'px';
+
+  hexEls.forEach(function (el, i) {
+    el.style.left       = (coords[i].x - minX) + 'px';
+    el.style.top        = (coords[i].y - minY) + 'px';
+    el.style.background = greys[i % greys.length];
+  });
+
+  // ── Pan / drag with inertia ───────────────────────────────────────────────
+  var contW = parseFloat(container.style.width);
+  var contH = parseFloat(container.style.height);
+
   var tx = (wrap.offsetWidth  - contW) / 2;
   var ty = (wrap.offsetHeight - contH) / 2;
   container.style.transform = 'translate(' + tx + 'px,' + ty + 'px)';
 
   var dragging = false, moved = false;
-  var sx = 0, sy = 0;          // pointer start minus current translate
-  var vx = 0, vy = 0;          // velocity for inertia
+  var sx = 0, sy = 0, vx = 0, vy = 0;
   var prevX = 0, prevY = 0, prevT = 0;
   var raf = null;
 
@@ -111,10 +113,8 @@
   }
 
   function startDrag(px, py) {
-    dragging = true;
-    moved    = false;
-    sx = px - tx;
-    sy = py - ty;
+    dragging = true; moved = false;
+    sx = px - tx; sy = py - ty;
     prevX = px; prevY = py; prevT = Date.now();
     vx = 0; vy = 0;
     cancelAnimationFrame(raf);
@@ -126,10 +126,7 @@
     var nx = px - sx, ny = py - sy;
     if (Math.abs(nx - tx) > 3 || Math.abs(ny - ty) > 3) moved = true;
     var now = Date.now(), dt = now - prevT;
-    if (dt > 0) {
-      vx = (px - prevX) / dt * 14; // scale to ~60 fps feel
-      vy = (py - prevY) / dt * 14;
-    }
+    if (dt > 0) { vx = (px - prevX) / dt * 14; vy = (py - prevY) / dt * 14; }
     prevX = px; prevY = py; prevT = now;
     tx = nx; ty = ny;
     applyTransform();
@@ -139,44 +136,35 @@
     if (!dragging) return;
     dragging = false;
     wrap.classList.remove('dragging');
-    // Inertia glide
     (function glide() {
       if (Math.abs(vx) < 0.3 && Math.abs(vy) < 0.3) return;
-      tx += vx; ty += vy;
-      vx *= 0.90; vy *= 0.90;
+      tx += vx; ty += vy; vx *= 0.90; vy *= 0.90;
       applyTransform();
       raf = requestAnimationFrame(glide);
     })();
   }
 
-  // Mouse
   wrap.addEventListener('mousedown', function (e) {
     if (e.button !== 0) return;
     startDrag(e.clientX, e.clientY);
     e.preventDefault();
   });
   window.addEventListener('mousemove', function (e) { moveDrag(e.clientX, e.clientY); });
-  window.addEventListener('mouseup',   endDrag);
+  window.addEventListener('mouseup', endDrag);
 
-  // Suppress clicks that were actually drags
   wrap.addEventListener('click', function (e) {
     if (moved) { e.preventDefault(); e.stopPropagation(); moved = false; }
   }, true);
 
-  // Touch
   wrap.addEventListener('touchstart', function (e) {
-    var t = e.touches[0];
-    startDrag(t.clientX, t.clientY);
+    startDrag(e.touches[0].clientX, e.touches[0].clientY);
     e.preventDefault();
   }, { passive: false });
-
   wrap.addEventListener('touchmove', function (e) {
-    var t = e.touches[0];
-    moveDrag(t.clientX, t.clientY);
+    moveDrag(e.touches[0].clientX, e.touches[0].clientY);
     e.preventDefault();
   }, { passive: false });
-
-  wrap.addEventListener('touchend',   endDrag);
+  wrap.addEventListener('touchend',    endDrag);
   wrap.addEventListener('touchcancel', endDrag);
 })();
 </script>
