@@ -281,7 +281,7 @@ main { padding: 5rem 0 1rem; }
   border: 3px solid var(--border);
   box-shadow: 0 4px 16px rgba(0,0,0,0.1);
 }
-.cv-header-info { margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+.cv-header-info { margin-bottom: 1.5rem; }
 .cv-header-info .cv-tagline { color: var(--muted); margin-bottom: 0.4rem; font-size: 1rem; }
 .cv-header-info .profile-bio { font-size: 0.9rem; color: var(--muted); margin-bottom: 0.85rem; }
 .cv-body { text-align: left; }
