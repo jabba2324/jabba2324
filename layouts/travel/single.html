@@ -1,6 +1,6 @@
 {{ define "main" }}
 <article class="album-page">
-  <h1>{{ .Title }}</h1>
+  
   {{ with .Params.location }}<p class="album-meta">📍 {{ . }}{{ with $.Params.year }}, {{ . }}{{ end }}</p>{{ end }}
 
   {{ with .Params.apple_album_url }}

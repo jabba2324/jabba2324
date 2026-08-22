@@ -1,6 +1,6 @@
 {{ define "main" }}
 <article class="prose">
-  <h1>{{ .Title }}</h1>
+  
   {{ with .Date }}<time class="post-date">{{ .Format "2 January 2006" }}</time>{{ end }}
   {{ .Content }}
 </article>
