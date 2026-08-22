@@ -2,7 +2,7 @@
 <article class="cv">
   <h1>{{ .Title }}</h1>
 
-  <header class="cv-header">
+  <div class="cv-card">
     <div class="cv-header-top">
       <div class="cv-header-info">
         {{ with .Params.tagline }}<p class="cv-tagline">{{ . }}</p>{{ end }}
@@ -11,9 +11,9 @@
       </div>
       <img class="cv-profile-pic" src="/assets/profile.jpeg" alt="Chris Sewell">
     </div>
-  </header>
+  </div>
 
-  <div class="cv-body">
+  <div class="cv-card cv-body">
     {{ .Content }}
   </div>
 </article>
