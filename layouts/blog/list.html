@@ -1,0 +1,152 @@
+{{ define "head" }}
+<style>
+  /* ── Magazine rack ─────────────────────────────────────────────── */
+  .mag-rack {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.75rem 1.5rem;
+    padding: 1.5rem 0 4rem;
+  }
+
+  .mag {
+    display: flex;
+    flex-direction: column;
+    aspect-ratio: 6 / 9;
+    border-radius: 2px;
+    overflow: hidden;
+    text-decoration: none;
+    color: #fff;
+    cursor: pointer;
+    box-shadow:
+      4px 8px 20px rgba(0,0,0,.55),
+      inset 0 0 0 1px rgba(255,255,255,.07);
+    transition: transform .22s ease, box-shadow .22s ease;
+  }
+  .mag:hover {
+    transform: translateY(-10px) rotate(-1deg);
+    box-shadow:
+      8px 18px 36px rgba(0,0,0,.65),
+      inset 0 0 0 1px rgba(255,255,255,.1);
+    color: #fff;
+  }
+
+  /* ── Accent top bar ─── */
+  .mag-accent { height: 7px; background: var(--acc); flex-shrink: 0; }
+
+  /* ── Masthead ────────── */
+  .mag-head {
+    padding: 9px 14px 7px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-shrink: 0;
+  }
+  .mag-brand {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 20px;
+    font-weight: bold;
+    font-style: italic;
+    letter-spacing: -0.3px;
+    color: #fff;
+  }
+  .mag-issue-no {
+    font-size: 9px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.45);
+  }
+
+  .mag-rule { height: 1px; background: var(--acc); margin: 0 14px; opacity: .55; flex-shrink: 0; }
+
+  /* ── Cover body ──────── */
+  .mag-body { flex: 1; padding: 13px 14px 10px; display: flex; flex-direction: column; overflow: hidden; }
+
+  .mag-kicker {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+    color: var(--acc);
+    margin-bottom: 9px;
+    flex-shrink: 0;
+  }
+
+  .mag-title {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 19px;
+    font-weight: 700;
+    line-height: 1.22;
+    color: #fff;
+    margin: 0 0 10px;
+    flex-shrink: 0;
+  }
+
+  .mag-dek {
+    font-size: 11.5px;
+    line-height: 1.55;
+    color: rgba(255,255,255,.58);
+    margin: 0;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+  }
+
+  /* ── Footer ─────────── */
+  .mag-foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 14px;
+    border-top: 1px solid rgba(255,255,255,.1);
+    background: rgba(0,0,0,.25);
+    font-size: 10px;
+    color: rgba(255,255,255,.38);
+    flex-shrink: 0;
+  }
+  .mag-price { font-family: Georgia, serif; font-style: italic; }
+
+  /* ── Colour themes (--acc set globally in main.css) ───── */
+  .mag-navy    { background: #080d1c; }
+  .mag-crimson { background: #160508; }
+  .mag-forest  { background: #03160b; }
+  .mag-purple  { background: #100633; }
+  .mag-teal    { background: #011818; }
+  .mag-amber   { background: #170c01; }
+  .mag-rose    { background: #180411; }
+  .mag-slate   { background: #0c1020; }
+
+  @media (max-width: 480px) {
+    .mag-rack { grid-template-columns: 1fr; gap: 1.25rem; }
+    .mag { aspect-ratio: 7 / 5; }
+  }
+</style>
+{{ end }}
+
+{{ define "main" }}
+<div class="mag-rack">
+  {{ $themes := slice "navy" "crimson" "forest" "purple" "teal" "amber" "rose" "slate" }}
+  {{ range $i, $p := .Pages }}
+  {{ $theme  := index $themes (mod $i (len $themes)) }}
+  {{ $kicker := "NOTES" }}
+  {{ with $p.Params.tags }}{{ with index . 0 }}{{ $kicker = . | upper }}{{ end }}{{ end }}
+  <a href="{{ $p.Permalink }}" class="mag mag-{{ $theme }}">
+    <div class="mag-accent"></div>
+    <div class="mag-head">
+      <span class="mag-brand">devlog</span>
+      <span class="mag-issue-no">No.{{ add $i 1 }} &middot; {{ $p.Date.Format "Jan 2006" | upper }}</span>
+    </div>
+    <div class="mag-rule"></div>
+    <div class="mag-body">
+      <div class="mag-kicker">{{ $kicker }}</div>
+      <h2 class="mag-title">{{ $p.Title }}</h2>
+      {{ with $p.Params.description }}<p class="mag-dek">{{ . }}</p>{{ end }}
+    </div>
+    <div class="mag-foot">
+      <span>{{ $p.Date.Format "2 Jan 2006" }}</span>
+      <span class="mag-price">£3.99</span>
+    </div>
+  </a>
+  {{ end }}
+</div>
+{{ end }}

@@ -1,0 +1,30 @@
+baseURL = "https://chrissewell.net/"
+title = "Chris Sewell"
+locale = "en-gb"
+
+[params]
+  author = "Chris Sewell"
+  github = "jabba2324"
+  linkedin = "YOUR_LINKEDIN_USERNAME"
+  signal = "s3WInxHYlNTxh_ynCpi8eQMnws77na04LAbRxXZMnDK6PS9BIO9DX4HSxgixYgFT"
+  emailUser = "contact"
+  emailDomain = "chrissewell.net"
+  bio = "Technology Director at Build Circle. Building things with AI, Go, Rust, and whatever else seems interesting."
+
+[menu]
+  [[menu.main]]
+    name = "Travel"
+    url = "/travel/"
+    weight = 1
+  [[menu.main]]
+    name = "Tools"
+    url = "/tools/"
+    weight = 2
+  [[menu.main]]
+    name = "Projects"
+    url = "/projects/"
+    weight = 3
+  [[menu.main]]
+    name = "Work"
+    url = "/work/"
+    weight = 4

@@ -1,0 +1,602 @@
+{{ define "pagefooter" }}{{ end }}
+
+{{ define "head" }}
+<style>
+  html, body   { overflow: hidden; height: 100%; }
+  main         { padding: 0 !important; margin: 0 !important; }
+  #hex-canvas  { position: fixed; left: 0; display: block; cursor: default; }
+</style>
+{{ end }}
+
+{{ define "main" }}
+<canvas id="hex-canvas"></canvas>
+
+<script>
+/* Project data – flattened from categories at load time */
+var HEX_DATA = (function () {
+  var cats = {{ hugo.Data.projects | jsonify | safeJS }};
+  var out = [];
+  cats.forEach(function (c) {
+    (c.items || []).forEach(function (it) { out.push(it); });
+  });
+  return out;
+})();
+</script>
+
+<script>
+(function () {
+  'use strict';
+
+  var canvas = document.getElementById('hex-canvas');
+  var ctx    = canvas.getContext('2d');
+  var DPR    = window.devicePixelRatio || 1;
+
+  /* ── Colours ─────────────────────────────────────────────────────── */
+  var BG_TOP_LEFT  = '#1c1f28'; /* dark grey */
+  var BG_BOT_RIGHT = '#08122a'; /* dark navy blue */
+  var HEX_BASE  = [13, 22, 40];   /* #0d1628 – dark navy hex fill */
+  var HEX_HOVER = [29, 78, 216];  /* #1d4ed8 – electric blue on hover */
+  var BORDER    = '#1e3a5f';
+  var TEXT_COL  = '#e2e8f0';
+  var MUTED_COL = '#64748b';
+  var FONT      = 'Roboto, sans-serif';
+
+  /* ── Organic branching layout – flat-top axial [q, r] ───────────── */
+  var POS = [
+    [ 0,  0],
+    [ 1, -1], [ 2, -1], [ 3, -2], [ 4, -2], [ 5, -3],
+    [ 2,  0], [ 3,  0],
+    [-1,  1], [-1,  2], [-2,  2], [-2,  3],
+    [ 0,  1], [ 0,  2],
+    [-1,  0], [-2,  0], [-3,  0], [-4,  0],
+    [-2, -1], [-3, -1],
+    [-1, -1],
+  ];
+
+  /* flat-top axial neighbour directions; direction d shares hex edge d→(d+1)%6 */
+  var DIRS = [[1,0],[0,1],[-1,1],[-1,0],[0,-1],[1,-1]];
+
+  /* ── Runtime state ───────────────────────────────────────────────── */
+  var S       = 70;    /* circumradius (CSS px) */
+  var hexes   = [];    /* built in setup() */
+  var cW, cH;          /* canvas CSS dimensions */
+  var tx = 0, ty = 0;  /* layout pan offset (logical CSS px) */
+  var txStart = 0, tyStart = 0; /* pan at mouse-drag start */
+  var clMinX = 0, clMaxX = 0, clMinY = 0, clMaxY = 0; /* cluster bounds (set in setup) */
+  var hovered = -1;    /* index of currently-hovered hex */
+  var hdr  = document.querySelector('.site-header');
+  var hdrH = hdr ? hdr.offsetHeight : 0;
+
+  /* ── Zoom state ──────────────────────────────────────────────────── */
+  var zoom     = 1.8;
+  var MIN_ZOOM = 0.4;
+  var MAX_ZOOM = 5;
+
+  /* ── Pinch state ─────────────────────────────────────────────────── */
+  var pinching  = false;
+  var pinchDist = 0;
+
+  /* ── Binary particle state ──────────────────────────────────────── */
+  var BIN_COUNT = 65;
+  var BIN_PARTS = [];
+  var binRaf    = null;
+
+  /* ── Parallax state ──────────────────────────────────────────────── */
+  var MAX_P   = 28;    /* max parallax displacement (CSS px) */
+  var pxOff   = 0, pyOff   = 0;   /* current smoothed offset */
+  var pxTgt   = 0, pyTgt   = 0;   /* target offset from mouse position */
+  var pRaf    = null;
+
+  /* ── Hover animation state ───────────────────────────────────────── */
+  /* IN:  fast (alpha 0.18 ≈ 0.3 s to fully lit)                       */
+  /* OUT: slow (alpha 0.012 ≈ 4 s to fully dimmed)                     */
+  var HOVER_IN  = 0.18;
+  var HOVER_OUT = 0.012;
+  var hRaf      = null;
+
+  /* ── Geometry ────────────────────────────────────────────────────── */
+  function vertex(cx, cy, i) {
+    var a = Math.PI * i / 3;
+    return [cx + S * Math.cos(a), cy + S * Math.sin(a)];
+  }
+
+  function hexPath(cx, cy) {
+    ctx.beginPath();
+    for (var i = 0; i < 6; i++) {
+      var v = vertex(cx, cy, i);
+      if (i === 0) ctx.moveTo(v[0], v[1]); else ctx.lineTo(v[0], v[1]);
+    }
+    ctx.closePath();
+  }
+
+  /* Point-in-flat-top-hexagon test (dx/dy relative to centre) */
+  function insideHex(px, py, cx, cy) {
+    var dx = px - cx, dy = py - cy;
+    var r  = S * 0.866025; /* S * √3/2 = inradius */
+    return Math.abs(dy)                        <= r
+        && Math.abs(dx * 0.866025 + dy * 0.5) <= r
+        && Math.abs(dx * 0.866025 - dy * 0.5) <= r;
+  }
+
+  function hexAt(px, py) {
+    /* inverse-transform screen coords → logical CSS px */
+    var lx = (px - cW / 2) / zoom + cW / 2;
+    var ly = (py - cH / 2) / zoom + cH / 2;
+    for (var i = 0; i < hexes.length; i++) {
+      if (insideHex(lx, ly, tx + pxOff + hexes[i].x, ty + pyOff + hexes[i].y)) return i;
+    }
+    return -1;
+  }
+
+  /* Zoom centered on screen point (mx, my); adjusts tx/ty to keep that point fixed */
+  function applyZoom(factor, mx, my) {
+    var newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoom * factor));
+    var f = 1 / newZoom - 1 / zoom;
+    tx += (mx - cW / 2) * f;
+    ty += (my - cH / 2) * f;
+    zoom = newZoom;
+    clampPan();
+  }
+
+  /* ── Pan clamping ───────────────────────────────────────────────── */
+  function clampPan() {
+    var pad = S * 2;
+    /* keep cluster within one padded hex-width of each viewport edge */
+    tx = Math.max((-cW / 2 - pad) / zoom + cW / 2 - clMaxX,
+         Math.min(( cW / 2 + pad) / zoom + cW / 2 - clMinX, tx));
+    ty = Math.max((-cH / 2 - pad) / zoom + cH / 2 - clMaxY,
+         Math.min(( cH / 2 + pad) / zoom + cH / 2 - clMinY, ty));
+  }
+
+  /* ── Binary particles ───────────────────────────────────────────── */
+  function makeBinPart(scatter) {
+    var glow = Math.random() < 0.13;
+    return {
+      x:    Math.random() * cW,
+      y:    scatter ? Math.random() * cH : cH + Math.random() * 40,
+      ch:   Math.random() < 0.5 ? '0' : '1',
+      spd:  0.25 + Math.random() * 0.65,
+      drft: (Math.random() - 0.5) * 0.22,
+      sz:   glow ? (12 + Math.floor(Math.random() * 8)) : (7 + Math.floor(Math.random() * 7)),
+      base: glow ? (0.3 + Math.random() * 0.45) : (0.03 + Math.random() * 0.17),
+      phi:  Math.random() * Math.PI * 2,
+      dPhi: 0.01 + Math.random() * 0.022,
+      glow: glow,
+    };
+  }
+
+  function initBinParts() {
+    BIN_PARTS = [];
+    for (var i = 0; i < BIN_COUNT; i++) BIN_PARTS.push(makeBinPart(true));
+  }
+
+  function animateBinary() {
+    BIN_PARTS.forEach(function (p, i) {
+      p.y -= p.spd;
+      p.x += p.drft;
+      p.phi += p.dPhi;
+      if (p.y < -24 || p.x < -24 || p.x > cW + 24) {
+        BIN_PARTS[i] = makeBinPart(false);
+      }
+    });
+    render();
+    binRaf = requestAnimationFrame(animateBinary);
+  }
+
+  /* ── Text wrapping ───────────────────────────────────────────────── */
+  function wrapText(text, maxW, font) {
+    ctx.font = font;
+    var words = text.replace(/[-_]/g, ' ').split(/\s+/);
+    var lines = [], cur = '';
+    words.forEach(function (w) {
+      var t = cur ? cur + ' ' + w : w;
+      if (cur && ctx.measureText(t).width > maxW) { lines.push(cur); cur = w; }
+      else cur = t;
+    });
+    if (cur) lines.push(cur);
+    return lines.slice(0, 3);
+  }
+
+  /* ── Setup: size canvas, compute S, build hex data ──────────────── */
+  function setup() {
+    hdrH = hdr ? hdr.offsetHeight : 0;
+    cW = window.innerWidth;
+    cH = window.innerHeight - hdrH;
+
+    canvas.style.top    = hdrH + 'px';
+    canvas.style.width  = cW   + 'px';
+    canvas.style.height = cH   + 'px';
+    canvas.width        = Math.round(cW * DPR);
+    canvas.height       = Math.round(cH * DPR);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+
+    /* Scale hexes to fit viewport; layout spans ~15.5·S wide × ~5.5·√3·S tall */
+    var sFromW = cW * 0.93 / 15.5;
+    var sFromH = cH * 0.93 / (5.5 * Math.sqrt(3));
+    S = Math.max(40, Math.min(90, Math.floor(Math.min(sFromW, sFromH))));
+
+    var n = Math.min(POS.length, HEX_DATA.length);
+
+    /* Axial → pixel centres */
+    var raw = POS.slice(0, n).map(function (p) {
+      return { x: S * 1.5 * p[0], y: S * Math.sqrt(3) * (p[1] + p[0] / 2) };
+    });
+
+    var minX = Math.min.apply(null, raw.map(function (r) { return r.x; }));
+    var maxX = Math.max.apply(null, raw.map(function (r) { return r.x; }));
+    var minY = Math.min.apply(null, raw.map(function (r) { return r.y; }));
+    var maxY = Math.max.apply(null, raw.map(function (r) { return r.y; }));
+
+    /* Centre the layout in the canvas */
+    tx = cW / 2 - (minX + maxX) / 2;
+    ty = cH / 2 - (minY + maxY) / 2;
+
+    /* Neighbour index map */
+    var posMap = {};
+    POS.slice(0, n).forEach(function (p, i) { posMap[p[0]+','+p[1]] = i; });
+
+    /* Font sizes proportional to S */
+    var iconPx   = Math.round(S * 0.30);
+    var namePx   = Math.round(S * 0.15);
+    var nameFont = 'bold ' + namePx + 'px ' + FONT;
+    var maxTW    = S * 1.05; /* max wrap width */
+
+    hexes = raw.map(function (r, i) {
+      return {
+        x:         r.x,
+        y:         r.y,
+        hoverT:    0,   /* 0 = idle, 1 = fully hovered */
+        data:      HEX_DATA[i],
+        neighbors: DIRS.map(function (d) {
+          var k = (POS[i][0] + d[0]) + ',' + (POS[i][1] + d[1]);
+          return (posMap[k] !== undefined) ? posMap[k] : -1;
+        }),
+        iconPx:    iconPx,
+        namePx:    namePx,
+        nameFont:  nameFont,
+        lines:     wrapText(HEX_DATA[i].name, maxTW, nameFont),
+      };
+    });
+
+    /* Cluster bounds for pan clamping */
+    clMinX = Math.min.apply(null, hexes.map(function (h) { return h.x; })) - S;
+    clMaxX = Math.max.apply(null, hexes.map(function (h) { return h.x; })) + S;
+    clMinY = Math.min.apply(null, hexes.map(function (h) { return h.y; })) - S;
+    clMaxY = Math.max.apply(null, hexes.map(function (h) { return h.y; })) + S;
+
+    /* Start (or restart) the binary particle loop */
+    initBinParts();
+    if (binRaf) cancelAnimationFrame(binRaf);
+    binRaf = requestAnimationFrame(animateBinary);
+  }
+
+  /* ── Draw emoji + name inside one hex ───────────────────────────── */
+  function drawContent(cx, cy, h) {
+    var lineH  = h.namePx * 1.55;
+    var totalH = h.lines.length * lineH;
+    var y      = cy - totalH / 2;
+
+    ctx.textAlign    = 'center';
+    ctx.textBaseline = 'top';
+
+
+    ctx.font      = h.nameFont;
+    ctx.fillStyle = TEXT_COL;
+    h.lines.forEach(function (ln) { ctx.fillText(ln, cx, y); y += lineH; });
+
+  }
+
+  /* ── Hover animation ────────────────────────────────────────────── */
+  function animateHover() {
+    var active = false;
+    hexes.forEach(function (h, i) {
+      var tgt   = (i === hovered) ? 1 : 0;
+      var alpha = (tgt > h.hoverT) ? HOVER_IN : HOVER_OUT;
+      var dt    = tgt - h.hoverT;
+      if (Math.abs(dt) > 0.001) {
+        h.hoverT += dt * alpha;
+        active = true;
+      } else {
+        h.hoverT = tgt;
+      }
+    });
+    render();
+    hRaf = active ? requestAnimationFrame(animateHover) : null;
+  }
+
+  function startHoverAnim() {
+    if (!hRaf) hRaf = requestAnimationFrame(animateHover);
+  }
+
+  /* ── Parallax animation ──────────────────────────────────────────── */
+  function animateParallax() {
+    var dx = pxTgt - pxOff, dy = pyTgt - pyOff;
+    pxOff += dx * 0.07;
+    pyOff += dy * 0.07;
+    render();
+    if (Math.abs(dx) > 0.15 || Math.abs(dy) > 0.15) {
+      pRaf = requestAnimationFrame(animateParallax);
+    } else {
+      pxOff = pxTgt; pyOff = pyTgt;
+      pRaf  = null;
+    }
+  }
+
+  function setParallaxTarget(canvasX, canvasY) {
+    pxTgt = (canvasX - cW / 2) / (cW / 2) * MAX_P;
+    pyTgt = (canvasY - cH / 2) / (cH / 2) * MAX_P;
+    if (!pRaf) pRaf = requestAnimationFrame(animateParallax);
+  }
+
+  function resetParallax() {
+    pxTgt = 0; pyTgt = 0;
+    if (!pRaf) pRaf = requestAnimationFrame(animateParallax);
+  }
+
+  /* ── Render ──────────────────────────────────────────────────────── */
+  function render() {
+    /* Clear in physical pixels, then set zoom-aware transform */
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    var bgGrad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    bgGrad.addColorStop(0, BG_TOP_LEFT);
+    bgGrad.addColorStop(1, BG_BOT_RIGHT);
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    /* Binary particles – screen-space, not affected by pan/zoom */
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    BIN_PARTS.forEach(function (p) {
+      var alpha = Math.max(0, p.base * (0.7 + 0.3 * Math.sin(p.phi)));
+      ctx.save();
+      ctx.font      = 'bold ' + p.sz + 'px "Courier New", monospace';
+      ctx.textAlign    = 'left';
+      ctx.textBaseline = 'top';
+      if (p.glow) {
+        ctx.shadowBlur  = 12;
+        ctx.shadowColor = 'rgba(100,160,255,0.9)';
+        ctx.fillStyle   = 'rgba(180,210,255,' + alpha + ')';
+      } else {
+        ctx.shadowBlur = 0;
+        ctx.fillStyle  = 'rgba(80,130,220,' + alpha + ')';
+      }
+      ctx.fillText(p.ch, p.x, p.y);
+      ctx.restore();
+    });
+
+    ctx.setTransform(
+      DPR * zoom, 0, 0, DPR * zoom,
+      DPR * cW / 2 * (1 - zoom),
+      DPR * cH / 2 * (1 - zoom)
+    );
+
+    /* Draw order: hovered hex on top so its scaled fill sits above neighbours */
+    var order = hexes.map(function (_, i) { return i; });
+    if (hovered >= 0) { order.splice(order.indexOf(hovered), 1); order.push(hovered); }
+
+    /* 1. Hex fills — scale from centre using hoverT, interpolate grey shade */
+    order.forEach(function (i) {
+      var h  = hexes[i];
+      var t  = h.hoverT;
+      var cx = tx + pxOff + h.x, cy = ty + pyOff + h.y;
+      var sc = 1 + t * 0.065;
+      var r  = Math.round(HEX_BASE[0] + t * (HEX_HOVER[0] - HEX_BASE[0]));
+      var g  = Math.round(HEX_BASE[1] + t * (HEX_HOVER[1] - HEX_BASE[1]));
+      var b  = Math.round(HEX_BASE[2] + t * (HEX_HOVER[2] - HEX_BASE[2]));
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.scale(sc, sc);
+      hexPath(0, 0);
+      ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
+      ctx.fill();
+      ctx.restore();
+    });
+
+    /* 2. Borders – each edge drawn exactly once at unscaled position */
+    ctx.setLineDash([]);
+    ctx.strokeStyle = BORDER;
+    ctx.lineWidth   = 1.5;
+    ctx.lineJoin    = 'round';
+    ctx.lineCap     = 'round';
+    hexes.forEach(function (h, i) {
+      var cx = tx + pxOff + h.x, cy = ty + pyOff + h.y;
+      for (var d = 0; d < 6; d++) {
+        var nb = h.neighbors[d];
+        if (nb === -1 || i < nb) {
+          var v1 = vertex(cx, cy, d);
+          var v2 = vertex(cx, cy, (d + 1) % 6);
+          ctx.beginPath();
+          ctx.moveTo(v1[0], v1[1]);
+          ctx.lineTo(v2[0], v2[1]);
+          ctx.stroke();
+        }
+      }
+    });
+
+    /* 3. Content — scale text/emoji with the hex */
+    ctx.shadowBlur = 0;
+    ctx.shadowColor = 'transparent';
+    order.forEach(function (i) {
+      var h  = hexes[i];
+      var t  = h.hoverT;
+      var cx = tx + pxOff + h.x, cy = ty + pyOff + h.y;
+      if (t > 0.001) {
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.scale(1 + t * 0.065, 1 + t * 0.065);
+        drawContent(0, 0, h);
+        ctx.restore();
+      } else {
+        drawContent(cx, cy, h);
+      }
+    });
+  }
+
+  /* ── Click blink ────────────────────────────────────────────────── */
+  function blinkThenOpen(idx) {
+    if (hRaf) { cancelAnimationFrame(hRaf); hRaf = null; }
+    var h   = hexes[idx];
+    var url = h.data.url;
+    var seq = [0, 1, 0, 1]; /* two dark→light flashes */
+    var i   = 0;
+    (function tick() {
+      h.hoverT = seq[i++];
+      render();
+      if (i < seq.length) { setTimeout(tick, 70); }
+      else { window.open(url, '_blank', 'noopener,noreferrer'); hovered = -1; startHoverAnim(); }
+    })();
+  }
+
+  /* ── Mouse drag (desktop only — touch is handled separately) ────── */
+  var dragging = false, mouseMoved = false;
+  var msx = 0, msy = 0, mvx = 0, mvy = 0;
+  var mprevX = 0, mprevY = 0, mprevT = 0, mRaf = null;
+
+  canvas.addEventListener('mousedown', function (e) {
+    if (e.button !== 0) return;
+    dragging = true; mouseMoved = false;
+    tx += pxOff; ty += pyOff;
+    pxOff = 0; pyOff = 0; pxTgt = 0; pyTgt = 0;
+    if (pRaf) { cancelAnimationFrame(pRaf); pRaf = null; }
+    msx = e.clientX; msy = e.clientY;
+    txStart = tx; tyStart = ty;
+    mprevX = e.clientX; mprevY = e.clientY; mprevT = Date.now();
+    mvx = 0; mvy = 0;
+    if (mRaf) { cancelAnimationFrame(mRaf); mRaf = null; }
+    canvas.style.cursor = 'grabbing';
+    e.preventDefault();
+  });
+
+  window.addEventListener('mousemove', function (e) {
+    if (dragging) {
+      var nx = txStart + (e.clientX - msx) / zoom;
+      var ny = tyStart + (e.clientY - msy) / zoom;
+      if (Math.abs((nx - tx) * zoom) > 3 || Math.abs((ny - ty) * zoom) > 3) mouseMoved = true;
+      var now = Date.now(), dt = now - mprevT;
+      if (dt > 0) { mvx = (e.clientX - mprevX) / dt * 14 / zoom; mvy = (e.clientY - mprevY) / dt * 14 / zoom; }
+      mprevX = e.clientX; mprevY = e.clientY; mprevT = now;
+      tx = nx; ty = ny;
+      clampPan();
+      render();
+      return;
+    }
+    var canvasY = e.clientY - hdrH;
+    setParallaxTarget(e.clientX, canvasY);
+    var idx = hexAt(e.clientX, canvasY);
+    if (idx !== hovered) {
+      hovered = idx;
+      canvas.style.cursor = idx >= 0 ? 'pointer' : 'default';
+      startHoverAnim();
+    }
+  });
+
+  window.addEventListener('mouseup', function (e) {
+    if (!dragging) return;
+    dragging = false;
+    if (!mouseMoved) {
+      var idx = hexAt(e.clientX, e.clientY - hdrH);
+      if (idx >= 0) { canvas.style.cursor = 'pointer'; blinkThenOpen(idx); return; }
+    }
+    canvas.style.cursor = 'default';
+    (function glide() {
+      if (Math.abs(mvx) < 0.3 && Math.abs(mvy) < 0.3) { render(); return; }
+      tx += mvx; ty += mvy; mvx *= 0.90; mvy *= 0.90;
+      clampPan();
+      render();
+      mRaf = requestAnimationFrame(glide);
+    })();
+  });
+
+  canvas.addEventListener('mouseleave', function () {
+    if (dragging) return;
+    hovered = -1;
+    canvas.style.cursor = 'default';
+    resetParallax();
+    startHoverAnim();
+  });
+
+  /* ── Touch (single-finger pan + pinch-zoom + tap) ────────────────── */
+  var tapX = 0, tapY = 0, tdTxStart = 0, tdTyStart = 0;
+
+  function touchDist(touches) {
+    var dx = touches[1].clientX - touches[0].clientX;
+    var dy = touches[1].clientY - touches[0].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+  function touchMid(touches) {
+    return {
+      x: (touches[0].clientX + touches[1].clientX) / 2,
+      y: (touches[0].clientY + touches[1].clientY) / 2 - hdrH,
+    };
+  }
+
+  canvas.addEventListener('touchstart', function (e) {
+    if (e.touches.length === 2) {
+      pinching  = true;
+      pinchDist = touchDist(e.touches);
+      e.preventDefault();
+      return;
+    }
+    pinching    = false;
+    tapX        = e.touches[0].clientX;
+    tapY        = e.touches[0].clientY;
+    tdTxStart   = tx;
+    tdTyStart   = ty;
+    e.preventDefault();
+  }, { passive: false });
+
+  canvas.addEventListener('touchmove', function (e) {
+    if (e.touches.length === 2) {
+      if (!pinching) {
+        pinching  = true;
+        pinchDist = touchDist(e.touches);
+        e.preventDefault();
+        return;
+      }
+      var newDist = touchDist(e.touches);
+      var mid     = touchMid(e.touches);
+      applyZoom(newDist / pinchDist, mid.x, mid.y);
+      pinchDist = newDist;
+      render();
+      e.preventDefault();
+      return;
+    }
+    if (pinching) { pinching = false; return; }
+    /* single-finger pan */
+    tx = tdTxStart + (e.touches[0].clientX - tapX) / zoom;
+    ty = tdTyStart + (e.touches[0].clientY - tapY) / zoom;
+    clampPan();
+    render();
+    e.preventDefault();
+  }, { passive: false });
+
+  canvas.addEventListener('touchend', function (e) {
+    if (pinching) {
+      if (e.touches.length < 2) {
+        pinching = false;
+        if (e.touches.length === 1) {
+          tapX = e.touches[0].clientX;
+          tapY = e.touches[0].clientY;
+          tdTxStart = tx;
+          tdTyStart = ty;
+        }
+      }
+      return;
+    }
+    var t = e.changedTouches[0];
+    if (Math.abs(t.clientX - tapX) < 8 && Math.abs(t.clientY - tapY) < 8) {
+      var idx = hexAt(t.clientX, t.clientY - hdrH);
+      if (idx >= 0) blinkThenOpen(idx);
+    }
+  });
+
+  canvas.addEventListener('touchcancel', function () { pinching = false; });
+
+  /* Resize */
+  window.addEventListener('resize', function () { setup(); render(); });
+
+  /* Boot */
+  setup();
+  render();
+})();
+</script>
+{{ end }}

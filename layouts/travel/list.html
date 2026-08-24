@@ -1,0 +1,156 @@
+{{ define "pagefooter" }}{{ end }}
+
+{{ define "head" }}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+<style>
+  html, body { overflow: hidden; height: 100%; }
+  main { padding: 0 !important; margin: 0 !important; }
+  #travel-map {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    /* top set by JS */
+  }
+
+  /* parchment CSS filter on tile pane */
+  .leaflet-tile-pane {
+    filter: sepia(0.85) saturate(0.65) brightness(0.97) contrast(1.12);
+  }
+
+  /* vignette overlay — warm amber tint across the whole map, heavier at edges */
+  #map-vignette {
+    position: absolute;
+    inset: 0;
+    z-index: 500;
+    pointer-events: none;
+    background: radial-gradient(ellipse at 50% 50%,
+      rgba(190,145,55,.22) 0%,
+      rgba(160,105,20,.40) 55%,
+      rgba(100,55,5,.62)   80%,
+      rgba(55,22,0,.78)   100%);
+  }
+
+  /* map pin dot */
+  .map-dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: #991b1b;
+    border: 2px solid #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,.4);
+  }
+
+  /* paper grain */
+  #map-grain {
+    position: absolute;
+    inset: 0;
+    z-index: 501;
+    pointer-events: none;
+    background-image:
+      repeating-conic-gradient(rgba(160,110,40,.035) 0deg 1deg, transparent 1deg 4deg),
+      repeating-conic-gradient(rgba(120,75,20,.025) 0deg 1deg, transparent 1deg 7deg);
+    background-size: 5px 5px, 9px 9px;
+    mix-blend-mode: multiply;
+  }
+
+  /* candle-light flicker glow */
+  #map-candle {
+    position: absolute;
+    inset: 0;
+    z-index: 502;
+    pointer-events: none;
+    background: radial-gradient(ellipse 55% 45% at 50% 50%,
+      rgba(255,200,80,.18) 0%,
+      rgba(220,150,40,.07) 45%,
+      transparent 70%);
+    animation: candle-flicker 3.4s ease-in-out infinite;
+    will-change: opacity, transform;
+  }
+
+  @keyframes candle-flicker {
+    0%   { opacity: .90; transform: scale(1.000) translateY(0px); }
+    4%   { opacity: 1.00; transform: scale(1.008) translateY(-1px); }
+    9%   { opacity: .72; transform: scale(0.995) translateY( 1px); }
+    14%  { opacity: .95; transform: scale(1.004) translateY(-1px); }
+    20%  { opacity: .60; transform: scale(0.990) translateY( 2px); }
+    26%  { opacity: 1.00; transform: scale(1.010) translateY(-2px); }
+    31%  { opacity: .80; transform: scale(1.000) translateY( 0px); }
+    38%  { opacity: .92; transform: scale(1.005) translateY(-1px); }
+    44%  { opacity: .68; transform: scale(0.993) translateY( 1px); }
+    50%  { opacity: .88; transform: scale(1.002) translateY( 0px); }
+    56%  { opacity: .75; transform: scale(0.996) translateY( 2px); }
+    62%  { opacity: 1.00; transform: scale(1.009) translateY(-2px); }
+    67%  { opacity: .65; transform: scale(0.992) translateY( 1px); }
+    73%  { opacity: .93; transform: scale(1.006) translateY(-1px); }
+    79%  { opacity: .82; transform: scale(1.001) translateY( 0px); }
+    85%  { opacity: .70; transform: scale(0.994) translateY( 1px); }
+    91%  { opacity: .97; transform: scale(1.007) translateY(-1px); }
+    96%  { opacity: .84; transform: scale(1.003) translateY( 0px); }
+    100% { opacity: .90; transform: scale(1.000) translateY( 0px); }
+  }
+</style>
+{{ end }}
+
+{{ define "main" }}
+<div id="travel-map">
+  <div id="map-vignette"></div>
+  <div id="map-grain"></div>
+  <div id="map-candle"></div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script>
+(function () {
+  var hdr   = document.querySelector('.site-header');
+  var mapEl = document.getElementById('travel-map');
+
+  function resize() {
+    var hdrH = hdr ? hdr.offsetHeight : 0;
+    mapEl.style.top = hdrH + 'px';
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  var worldBounds = [[-90, -180], [90, 180]];
+
+  var map = L.map('travel-map', {
+    maxBounds: worldBounds,
+    maxBoundsViscosity: 1.0,
+    worldCopyJump: false,
+  }).setView([30, 10], 2);
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, © <a href="https://carto.com/">CARTO</a>',
+    maxZoom: 18,
+    noWrap: true,
+  }).addTo(map);
+
+  function clampMinZoom() {
+    var minZ = map.getBoundsZoom(worldBounds, true);
+    map.setMinZoom(minZ);
+    if (map.getZoom() < minZ) map.setZoom(minZ);
+  }
+  clampMinZoom();
+  map.on('resize', clampMinZoom);
+
+  var visitedIcon = L.divIcon({
+    className: '',
+    html: '<div class="map-dot"></div>',
+    iconSize: [12, 12],
+    iconAnchor: [6, 6],
+  });
+
+  {{ range hugo.Data.visited }}
+  L.marker([{{ .lat }}, {{ .lng }}], { icon: visitedIcon })
+    .addTo(map)
+    .bindPopup('<strong>{{ .country }}</strong>');
+  {{ end }}
+
+  {{ range .Pages }}{{ if and .Params.lat .Params.lng }}
+  L.marker([{{ .Params.lat }}, {{ .Params.lng }}])
+    .addTo(map)
+    .bindPopup('<a href="{{ .Permalink }}">{{ .Title }}</a><br><small>{{ or .Params.location "" }}</small>');
+  {{ end }}{{ end }}
+
+  setTimeout(function () { map.invalidateSize(); }, 100);
+})();
+</script>
+{{ end }}

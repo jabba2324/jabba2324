@@ -1,0 +1,430 @@
+{{ define "pagefooter" }}{{ end }}
+{{ define "head" }}
+<style>
+/* ── Ensure header stays above the background ─────────────── */
+.site-header { position: relative; z-index: 50; }
+
+/* ── Background image ─────────────────────────────────────── */
+#site-bg {
+  position: fixed; inset: 0; z-index: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: #f5f3ef;
+}
+
+/* ── Splash — frosted window effect ───────────────────────── */
+#splash {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(245, 243, 239, 0.45);
+  backdrop-filter: blur(22px) saturate(130%);
+  -webkit-backdrop-filter: blur(22px) saturate(130%);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: opacity .6s ease;
+}
+#splash.splash-out { opacity: 0; pointer-events: none; }
+.splash-inner { display: flex; align-items: center; gap: 1.25rem; }
+.splash-icon  { display: block; flex-shrink: 0; }
+.splash-text  {
+  font-size: .75rem;
+  letter-spacing: .25em;
+  text-transform: uppercase;
+  color: #2a1200;
+  border: 2.5px solid #2a1200;
+  padding: .5rem 1.25rem;
+  font-weight: 900;
+  box-shadow: 3px 3px 0 #2a1200;
+}
+
+/* ── Scene ────────────────────────────────────────────────── */
+.rack-scene {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  overflow-y: auto;
+  background: transparent; /* background image shows through */
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 5rem 0 3rem;
+}
+
+/* ── Outer rack frame — chunky cartoon wood ───────────────── */
+.rack-frame {
+  width: min(480px, 94vw);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  border: 4px solid #2a1200;
+  box-shadow: 7px 7px 0 #2a1200;
+  background: #c8893a;   /* wood face, visible between tiers */
+}
+
+/* ── Shelf lip ────────────────────────────────────────────── */
+.rack-lip {
+  height: 18px;
+  flex-shrink: 0;
+  background: #c8893a;
+  border-top:    2px solid #f2c46a;    /* light highlight edge */
+  border-bottom: 3px solid #2a1200;    /* dark bottom edge */
+  position: relative;
+  z-index: 30;
+}
+/* wood grain texture on lip */
+.rack-lip::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(90deg,
+    transparent 0px, transparent 18px,
+    rgba(0,0,0,.06) 18px, rgba(0,0,0,.06) 20px);
+}
+
+/* ── Tier (row of pockets) ────────────────────────────────── */
+.rack-tier {
+  display: flex;
+  gap: 6px;
+  padding: 0 6px;
+  position: relative;
+  /* no z-index — a z-index here creates a stacking context that traps
+     the slot's z-index:40, preventing it from painting above the lips */
+}
+
+/* ── Pocket / slot ────────────────────────────────────────── */
+.rack-slot {
+  flex: 1;
+  height: 125px;            /* visible window */
+  position: relative;
+  overflow: visible;
+  /* clip-path creates the pocket — allows nothing above, hides below */
+  clip-path: inset(0 0 0 0);
+  z-index: 1;
+  transition: z-index 0s .44s, clip-path 0s .44s;
+}
+/* JS adds .is-hovered — opens clip upward so magazine pops out over the lip */
+.rack-slot.is-hovered {
+  clip-path: inset(-210px -4px 0 -4px);
+  z-index: 40;
+  transition: z-index 0s 0s, clip-path 0s 0s;
+}
+
+/* ── Magazine (full height, sits in the pocket) ───────────── */
+.rack-slot > a {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 250px;
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: #fff;
+  background: var(--bg);
+  border-radius: 3px 3px 4px 4px;
+  border: 2.5px solid rgba(0,0,0,.75);
+  box-shadow: 3px 3px 0 rgba(0,0,0,.5);
+  transition:
+    transform .4s cubic-bezier(.22,1,.36,1),
+    box-shadow .4s cubic-bezier(.22,1,.36,1);
+  will-change: transform;
+}
+.rack-slot.is-hovered > a {
+  transform: translateY(-88px);         /* pop up above the shelf lip */
+  box-shadow: 7px 7px 0 #000;          /* cartoon flat shadow */
+}
+
+/* ── Cover anatomy ────────────────────────────────────────── */
+.m-stripe {
+  height: 6px;
+  background: var(--acc);
+  flex-shrink: 0;
+  border-bottom: 1.5px solid rgba(0,0,0,.4);
+}
+
+.m-head {
+  padding: 5px 9px 5px;
+  border-bottom: 2px solid var(--acc);
+  flex-shrink: 0;
+}
+.m-kicker {
+  font-size: 7.5px;
+  font-weight: 900;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--acc);
+  margin-bottom: 3px;
+  -webkit-text-stroke: 0px;
+}
+.m-name {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1.2;
+  color: #fff;
+  letter-spacing: -0.1px;
+}
+
+.m-art {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+.m-over {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,.88) 0%, transparent 60%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 8px 9px;
+}
+.m-dek {
+  font-size: 9px;
+  line-height: 1.45;
+  color: rgba(255,255,255,.6);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.m-foot {
+  background: var(--acc);
+  border-top: 1.5px solid rgba(0,0,0,.5);
+  padding: 3px 9px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+.m-foot span {
+  font-size: 7px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  font-weight: 900;
+  color: rgba(0,0,0,.65);
+}
+.m-price { font-family: Georgia, serif; font-style: italic; font-weight: 400; }
+
+/* ── Themes — flat bold cartoon colours (--acc set globally in main.css) ── */
+.m-navy    { --bg: #0d1733; }
+.m-crimson { --bg: #2a0610; }
+.m-forest  { --bg: #071a0c; }
+.m-purple  { --bg: #1a0835; }
+.m-teal    { --bg: #021c1c; }
+.m-amber   { --bg: #1e0f00; }
+.m-rose    { --bg: #250618; }
+.m-slate   { --bg: #0f1420; }
+
+/* ── Cover art — manga screen-tone patterns ───────────────── */
+
+/* NAVY — horizontal rule lines (printed text look) */
+.m-navy .m-art {
+  background:
+    repeating-linear-gradient(0deg,
+      transparent 0px, transparent 11px,
+      rgba(59,130,246,.15) 11px, rgba(59,130,246,.15) 12px),
+    #0d1733;
+}
+
+/* CRIMSON — halftone dots */
+.m-crimson .m-art {
+  background:
+    radial-gradient(circle, rgba(239,68,68,.18) 1.5px, transparent 1.5px),
+    #2a0610;
+  background-size: 9px 9px, auto;
+}
+
+/* FOREST — concentric rings (topo map) */
+.m-forest .m-art { background: #071a0c; }
+.m-forest .m-art::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(circle at 50% 40%, rgba(34,197,94,.18) 0%, transparent 40%),
+    radial-gradient(circle at 50% 40%, transparent 44px, rgba(34,197,94,.12) 44px, transparent 58px),
+    radial-gradient(circle at 50% 40%, transparent 68px, rgba(34,197,94,.09) 68px, transparent 82px),
+    radial-gradient(circle at 50% 40%, transparent 92px, rgba(34,197,94,.06) 92px, transparent 106px);
+}
+
+/* PURPLE — hex pattern (manga panel grid) */
+.m-purple .m-art {
+  background: #1a0835;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='70' viewBox='0 0 40 70'%3E%3Cpath d='M20 2 L38 12 L38 32 L20 42 L2 32 L2 12 Z' fill='none' stroke='rgba(168,85,247,.18)' stroke-width='1.5'/%3E%3Cpath d='M20 28 L38 38 L38 58 L20 68 L2 58 L2 38 Z' fill='none' stroke='rgba(168,85,247,.18)' stroke-width='1.5'/%3E%3C/svg%3E");
+  background-size: 40px 70px;
+}
+
+/* TEAL — speed lines (manga action) */
+.m-teal .m-art {
+  background: #021c1c;
+  overflow: hidden;
+}
+.m-teal .m-art::before {
+  content: '';
+  position: absolute; inset: -50%;
+  background: repeating-conic-gradient(
+    from 0deg at 50% 50%,
+    rgba(45,212,191,.08) 0deg, rgba(45,212,191,.08) 2deg,
+    transparent 2deg, transparent 8deg
+  );
+}
+
+/* AMBER — vertical bar chart lines */
+.m-amber .m-art {
+  background: #1e0f00;
+}
+.m-amber .m-art::before {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0; height: 65%;
+  background: repeating-linear-gradient(90deg,
+    rgba(245,158,11,.18) 0px, rgba(245,158,11,.18) 10px,
+    transparent 10px, transparent 16px);
+  -webkit-mask-image: linear-gradient(to top, black 0%, transparent 100%);
+  mask-image: linear-gradient(to top, black 0%, transparent 100%);
+}
+
+/* ROSE — diagonal stripes (manga screen tone) */
+.m-rose .m-art {
+  background:
+    repeating-linear-gradient(45deg,
+      transparent 0px, transparent 8px,
+      rgba(251,113,133,.12) 8px, rgba(251,113,133,.12) 9px),
+    #250618;
+}
+
+/* SLATE — dot grid */
+.m-slate .m-art {
+  background:
+    radial-gradient(circle, rgba(148,163,184,.14) 1px, transparent 1px),
+    #0f1420;
+  background-size: 12px 12px, auto;
+}
+
+@media (max-width: 500px) {
+  .rack-slot { height: 100px; }
+  .rack-slot > a { height: 200px; }
+  .rack-slot.is-hovered > a { transform: translateY(-70px); }
+  .rack-slot.is-hovered { clip-path: inset(-170px -4px 0 -4px); }
+  .m-name { font-size: 12px; }
+}
+</style>
+{{ end }}
+
+{{ define "pagefooter" }}
+<div id="site-bg"></div>
+
+<div id="splash">
+  <div class="splash-inner">
+    <svg class="splash-icon" width="72" height="64" viewBox="0 0 72 64" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+      <!-- shadow -->
+      <rect x="6" y="60" width="60" height="3" fill="#2a1200" opacity="0.18"/>
+      <!-- left page fill -->
+      <rect x="2" y="8" width="30" height="48" fill="#fffdf0"/>
+      <!-- left title stripe -->
+      <rect x="5" y="12" width="24" height="5" fill="#c8893a"/>
+      <!-- left text lines -->
+      <rect x="5" y="21" width="24" height="2" fill="#c8b898"/>
+      <rect x="5" y="26" width="18" height="2" fill="#c8b898"/>
+      <rect x="5" y="31" width="24" height="2" fill="#c8b898"/>
+      <rect x="5" y="36" width="14" height="2" fill="#c8b898"/>
+      <rect x="5" y="41" width="24" height="2" fill="#c8b898"/>
+      <rect x="5" y="46" width="18" height="2" fill="#c8b898"/>
+      <!-- left page border -->
+      <rect x="2" y="8" width="30" height="48" fill="none" stroke="#2a1200" stroke-width="3"/>
+      <!-- spine -->
+      <rect x="30" y="5" width="12" height="54" fill="#c8893a"/>
+      <rect x="30" y="5" width="12" height="54" fill="none" stroke="#2a1200" stroke-width="2.5"/>
+      <!-- right page fill -->
+      <rect x="40" y="8" width="30" height="48" fill="#fffdf0"/>
+      <!-- right title stripe -->
+      <rect x="43" y="12" width="24" height="5" fill="#3b82f6"/>
+      <!-- right text lines -->
+      <rect x="43" y="21" width="24" height="2" fill="#c8b898"/>
+      <rect x="43" y="26" width="18" height="2" fill="#c8b898"/>
+      <rect x="43" y="31" width="24" height="2" fill="#c8b898"/>
+      <rect x="43" y="36" width="14" height="2" fill="#c8b898"/>
+      <rect x="43" y="41" width="24" height="2" fill="#c8b898"/>
+      <rect x="43" y="46" width="18" height="2" fill="#c8b898"/>
+      <!-- right page border -->
+      <rect x="40" y="8" width="30" height="48" fill="none" stroke="#2a1200" stroke-width="3"/>
+    </svg>
+    <div class="splash-text">click to enter</div>
+  </div>
+</div>
+
+<div class="rack-scene" id="rack-scene">
+  <div class="rack-frame">
+
+    <div class="rack-lip"></div>
+
+    {{ $themes := slice "navy" "crimson" "forest" "purple" "teal" "amber" "rose" "slate" }}
+    {{ $posts  := where .Site.RegularPages "Section" "blog" }}
+
+    {{ range $i, $p := $posts }}
+    {{ $theme  := index $themes (mod $i (len $themes)) }}
+    {{ $kicker := "NOTES" }}
+    {{ with $p.Params.tags }}{{ with index . 0 }}{{ $kicker = . | upper }}{{ end }}{{ end }}
+
+    {{ if eq (mod $i 2) 0 }}<div class="rack-tier">{{ end }}
+
+      <div class="rack-slot">
+        <a href="{{ $p.Permalink }}" class="m-{{ $theme }}">
+          <div class="m-stripe"></div>
+          <div class="m-head">
+            <div class="m-kicker">{{ $kicker }}</div>
+            <div class="m-name">{{ $p.Title }}</div>
+          </div>
+          <div class="m-art">
+            <div class="m-over">
+              {{ with $p.Params.description }}<p class="m-dek">{{ . }}</p>{{ end }}
+            </div>
+          </div>
+          <div class="m-foot">
+            <span>{{ $p.Date.Format "Jan 2006" | upper }}</span>
+            <span class="m-price">£3.99</span>
+          </div>
+        </a>
+      </div>
+
+    {{ if eq (mod $i 2) 1 }}</div><div class="rack-lip"></div>{{ end }}
+    {{ end }}
+
+    {{ if eq (mod (len $posts) 2) 1 }}
+      <div class="rack-slot" style="flex:1;clip-path:none"></div></div>
+      <div class="rack-lip"></div>
+    {{ end }}
+
+  </div>
+</div>
+<script>
+  (function(){
+    /* Load background — 8K for physical screens wider than 3840px, 4K otherwise */
+    var physW = (window.screen.width || 1920) * (window.devicePixelRatio || 1);
+    var bgSrc = physW > 3840 ? '/assets/blog_background_8K.png' : '/assets/blog_background_4K.png';
+    document.getElementById('site-bg').style.backgroundImage = 'url(' + bgSrc + ')';
+
+    /* Pin scene below header */
+    var hdr   = document.querySelector('.site-header');
+    var scene = document.getElementById('rack-scene');
+    function pin(){ scene.style.top = hdr.offsetHeight + 'px'; }
+    pin();
+    window.addEventListener('resize', pin);
+
+    /* Click-to-enter splash — grants audio permission cleanly */
+    var splash = document.getElementById('splash');
+    var jingle = new Audio('/assets/family-mart.mp3');
+    splash.addEventListener('click', function() {
+      splash.classList.add('splash-out');
+      setTimeout(function(){ jingle.play().catch(function(){}); }, 3000);
+    });
+    splash.addEventListener('transitionend', function() { splash.remove(); });
+
+    /* Pop-out: expand clip upward so magazine rises above its shelf lip */
+    document.querySelectorAll('.rack-slot').forEach(function(slot){
+      slot.addEventListener('mouseenter', function(){
+        this.classList.add('is-hovered');
+      });
+      slot.addEventListener('mouseleave', function(){
+        this.classList.remove('is-hovered');
+      });
+    });
+  })();
+</script>
+{{ end }}

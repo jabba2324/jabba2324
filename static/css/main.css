@@ -1,0 +1,194 @@
+/* ── Reset & base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #f5f5f5;
+  --surface: #fff;
+  --border: #d1dced;
+  --text: #131720;
+  --muted: #5a6478;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --link: #2563eb;
+  --font-sans: 'Roboto', sans-serif;
+  --font-mono: 'Courier New', monospace;
+  --radius: 6px;
+  --max-w: 760px;
+}
+
+html { font-size: 18px; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  line-height: 1.7;
+}
+
+a { color: var(--link); }
+a:hover { color: var(--accent); }
+
+/* ── Layout ── */
+.container {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+
+/* ── Header ── */
+.site-header {
+  border-bottom: 1px solid var(--border);
+  padding: 0.75rem 0;
+  background: var(--surface);
+}
+
+.site-header .container {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.site-title {
+  font-size: 1.15rem;
+  font-weight: bold;
+  text-decoration: none;
+  color: var(--text);
+  letter-spacing: 0.02em;
+}
+
+.site-header nav { display: flex; align-items: center; gap: 1.25rem; flex-wrap: wrap; margin-left: auto; }
+.site-header nav a { text-decoration: none; font-size: 0.9rem; color: var(--muted); }
+.site-header nav a:hover, .site-header nav a.active { color: var(--accent); }
+.nav-icons { display: flex; align-items: center; gap: 0.75rem; margin-left: 0.5rem; padding-left: 0.75rem; border-left: 1px solid var(--border); }
+.nav-icon { display: flex; align-items: center; color: var(--muted); transition: color 0.15s; }
+.nav-icon:hover { color: var(--accent); }
+
+/* ── Footer ── */
+.site-footer {
+  border-top: 1px solid var(--border);
+  padding: 1.5rem 0;
+  margin-top: 4rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+/* ── Main ── */
+main { padding: 5rem 0 1rem; }
+main h1 { margin-bottom: 1.75rem; }
+
+/* ── Profile buttons (CV page) ── */
+.profile-bio { font-size: 0.9rem; color: var(--muted); margin: 0.25rem 0 0.85rem; }
+.profile-cv-btn {
+  display: inline-block;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.9rem;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  border-radius: var(--radius);
+  transition: background 0.15s;
+}
+.profile-cv-btn:hover { background: var(--accent-hover); color: #fff; }
+
+/* ── Blog ── */
+.post-list { list-style: none; }
+.post-item { padding: 1rem 0; border-bottom: 1px solid var(--border); }
+.post-item a { text-decoration: none; font-size: 1.05rem; }
+.post-date { display: block; font-size: 0.8rem; color: var(--muted); margin-top: 0.15rem; font-style: italic; }
+.post-item p { margin-top: 0.25rem; font-size: 0.9rem; color: var(--muted); }
+
+/* ── Prose ── */
+.prose h1 { margin-bottom: 0.25rem; }
+.prose .post-date { margin-bottom: 1.5rem; }
+.prose .project-link { margin-bottom: 1.5rem; font-size: 0.9rem; }
+.prose p { margin-bottom: 1rem; }
+.prose h2, .prose h3 { margin: 1.5rem 0 0.5rem; }
+.prose ul, .prose ol { margin: 0.75rem 0 1rem 1.5rem; }
+.prose blockquote { border-left: 3px solid var(--accent); padding-left: 1rem; color: var(--muted); margin: 1rem 0; }
+.prose code { font-family: var(--font-mono); font-size: 0.85em; background: #e8eef8; padding: 0.1em 0.35em; border-radius: 3px; }
+.prose pre { background: #131720; color: #e8eef8; padding: 1rem; border-radius: var(--radius); overflow-x: auto; margin: 1rem 0; }
+.prose pre code { background: none; padding: 0; font-size: 0.85rem; }
+
+/* ── Projects – canvas fills the viewport, no DOM hex elements needed ── */
+
+/* ── Tools ── */
+.tools-list { list-style: none; display: grid; gap: 1rem; }
+
+.tool-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+}
+.tool-header { display: flex; align-items: baseline; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.35rem; }
+.tool-icon { font-size: 1.1rem; }
+.tool-name { font-size: 1rem; font-weight: bold; text-decoration: none; }
+.tool-desc { font-size: 0.875rem; color: var(--muted); margin: 0; }
+.tag { font-size: 0.7rem; background: #e8eef8; border: 1px solid var(--border); border-radius: 3px; padding: 0.1em 0.4em; color: var(--muted); }
+
+/* ── CV ── */
+.cv-card {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  padding-top: 80px;
+  margin-top: 60px;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+.cv-profile-avatar {
+  position: absolute;
+  top: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.cv-profile-pic {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center center;
+  border: 4px solid var(--surface);
+  outline: 1px solid var(--border);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  display: block;
+}
+.cv-header-info { margin-bottom: 1.5rem; }
+.cv-header-info .cv-tagline { color: var(--muted); margin-bottom: 0.4rem; font-size: 1rem; }
+.cv-header-info .profile-bio { font-size: 0.9rem; color: var(--muted); margin-bottom: 0.85rem; }
+.cv-body { text-align: left; }
+@media (max-width: 480px) {
+  .cv-profile-pic { width: 90px; height: 90px; }
+}
+.cv-tagline { color: var(--muted); margin-bottom: 1rem; }
+
+.cv-body h2 {
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.25rem;
+  margin: 2rem 0 1rem;
+}
+.cv-body h3 { font-size: 1rem; margin-bottom: 0.1rem; }
+.cv-body ul { margin-left: 1.25rem; margin-bottom: 1rem; }
+.cv-body p { margin-bottom: 0.75rem; font-size: 0.95rem; }
+
+/* ── Magazine accent palette (shared by home rack + blog list) ── */
+.m-navy,    .mag-navy    { --acc: #3b82f6; }
+.m-crimson, .mag-crimson { --acc: #ef4444; }
+.m-forest,  .mag-forest  { --acc: #22c55e; }
+.m-purple,  .mag-purple  { --acc: #a855f7; }
+.m-teal,    .mag-teal    { --acc: #2dd4bf; }
+.m-amber,   .mag-amber   { --acc: #f59e0b; }
+.m-rose,    .mag-rose    { --acc: #fb7185; }
+.m-slate,   .mag-slate   { --acc: #94a3b8; }
+
+/* ── Responsive ── */
+@media (max-width: 500px) {
+  html { font-size: 16px; }
+}

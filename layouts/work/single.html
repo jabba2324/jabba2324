@@ -1,0 +1,25 @@
+{{ define "head" }}
+<style>
+  article.cv { padding-top: 2.5rem; }
+</style>
+{{ end }}
+
+{{ define "main" }}
+<article class="cv">
+  <div class="cv-card">
+    <div class="cv-profile-avatar">
+      <img class="cv-profile-pic" src="/assets/profile.jpeg" alt="Chris Sewell">
+    </div>
+
+    <div class="cv-header-info">
+      {{ with .Params.tagline }}<p class="cv-tagline">{{ . }}</p>{{ end }}
+      <p class="profile-bio">{{ .Site.Params.bio }}</p>
+      <a class="profile-cv-btn" href="/assets/profile.pdf" download>↓ Download CV</a>
+    </div>
+
+    <div class="cv-body">
+      {{ .Content }}
+    </div>
+  </div>
+</article>
+{{ end }}

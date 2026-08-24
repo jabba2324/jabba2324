@@ -1,0 +1,340 @@
+{{ define "pagefooter" }}{{ end }}
+
+{{ define "head" }}
+<style>
+  html, body { overflow: hidden; height: 100%; }
+  main { padding: 0 !important; margin: 0 !important; }
+
+  /* ── Win98 desktop shell ─────────────────────────────────────────── */
+  #w98 {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    /* top set by JS */
+    background: #008080;
+    display: flex;
+    flex-direction: column;
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+  }
+
+  /* ── Desktop canvas ──────────────────────────────────────────────── */
+  .w98-desktop {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    padding: 12px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    gap: 4px;
+  }
+
+  /* ── Desktop icon ────────────────────────────────────────────────── */
+  .w98-icon {
+    width: 76px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: default;
+    user-select: none;
+    -webkit-user-select: none;
+    padding: 4px;
+    border: 1px dotted transparent;
+    margin-bottom: 6px;
+  }
+  .w98-icon .ico { font-size: 36px; line-height: 1; margin-bottom: 5px; }
+  .w98-icon .lbl {
+    color: #fff;
+    font-size: 11px;
+    text-align: center;
+    text-shadow: 1px 1px 1px #000, -1px -1px 1px #000;
+    padding: 1px 3px;
+    line-height: 1.35;
+    word-break: break-word;
+    hyphens: auto;
+  }
+  .w98-icon.selected { border-color: #ffffffaa; }
+  .w98-icon.selected .lbl { background: #000080; text-shadow: none; }
+  .w98-icon:hover:not(.selected) .lbl { background: #00008088; }
+
+  /* ── Taskbar ─────────────────────────────────────────────────────── */
+  .w98-taskbar {
+    height: 34px;
+    flex-shrink: 0;
+    background: #C0C0C0;
+    border-top: 2px solid #fff;
+    box-shadow: inset 0 1px 0 #dfdfdf;
+    display: flex;
+    align-items: center;
+    padding: 0 4px;
+    gap: 4px;
+    z-index: 10;
+  }
+
+  /* ── Start button ────────────────────────────────────────────────── */
+  .w98-start {
+    height: 26px;
+    padding: 0 7px 0 5px;
+    background: #C0C0C0;
+    border: 2px solid;
+    border-color: #fff #404040 #404040 #fff;
+    box-shadow: inset 1px 1px 0 #dfdfdf, inset -1px -1px 0 #808080;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .w98-start:active, .w98-start.open {
+    border-color: #808080 #dfdfdf #dfdfdf #808080;
+    box-shadow: inset 1px 1px 0 #404040;
+    padding-left: 6px;
+    padding-top: 1px;
+  }
+  /* 4-colour Windows logo */
+  .w98-logo {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    width: 16px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+  .w98-logo span { display: block; }
+  .w98-logo span:nth-child(1) { background: #FF3300; }
+  .w98-logo span:nth-child(2) { background: #33AA00; }
+  .w98-logo span:nth-child(3) { background: #3355FF; }
+  .w98-logo span:nth-child(4) { background: #FFCC00; }
+
+  /* ── Taskbar tray ────────────────────────────────────────────────── */
+  .w98-tray {
+    margin-left: auto;
+    height: 24px;
+    padding: 0 8px;
+    background: #C0C0C0;
+    border: 1px solid;
+    border-color: #808080 #fff #fff #808080;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+  .w98-tray .tray-icon { font-size: 14px; }
+  .w98-clock { min-width: 36px; text-align: center; }
+
+  /* ── Start menu ──────────────────────────────────────────────────── */
+  .w98-menu {
+    position: fixed;
+    left: 4px;
+    /* bottom set by JS */
+    width: 290px;
+    background: #C0C0C0;
+    border: 2px solid;
+    border-color: #fff #404040 #404040 #fff;
+    box-shadow: 2px 2px 4px rgba(0,0,0,.45);
+    display: none;
+    flex-direction: row;
+    z-index: 50;
+  }
+  .w98-menu.open { display: flex; }
+
+  /* left colour strip */
+  .w98-menu-strip {
+    width: 26px;
+    flex-shrink: 0;
+    background: linear-gradient(to bottom, #1084D0 0%, #000080 100%);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 6px;
+  }
+  .w98-menu-strip-label {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    font-size: 14px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    color: #C0C0C0;
+    white-space: nowrap;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .w98-menu-strip-label em { color: #fff; font-style: normal; font-size: 15px; }
+
+  /* item list */
+  .w98-menu-list {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 2px 0;
+    overflow: hidden;
+  }
+  .w98-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 8px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .w98-menu-item:hover { background: #000080; color: #fff; }
+  .w98-menu-item:hover .item-sub { color: #ccc; }
+  .w98-menu-item .item-ico { font-size: 20px; width: 26px; text-align: center; flex-shrink: 0; }
+  .w98-menu-item .item-body { display: flex; flex-direction: column; overflow: hidden; }
+  .w98-menu-item .item-name { font-size: 12px; font-weight: bold; white-space: nowrap; }
+  .w98-menu-item .item-sub  { font-size: 10px; color: #555; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
+
+  .w98-menu-sep {
+    height: 0;
+    border-top: 1px solid #808080;
+    border-bottom: 1px solid #fff;
+    margin: 3px 4px;
+  }
+</style>
+{{ end }}
+
+{{ define "main" }}
+
+<!-- Desktop -->
+<div id="w98">
+  <div class="w98-desktop" id="w98-desktop">
+    {{ range hugo.Data.tools }}
+    <div class="w98-icon" data-url="{{ .url }}" title="{{ .description }}">
+      <div class="ico">{{ .icon }}</div>
+      <div class="lbl">{{ .name }}</div>
+    </div>
+    {{ end }}
+  </div>
+
+  <!-- Taskbar -->
+  <div class="w98-taskbar">
+    <button class="w98-start" id="w98-start" aria-label="Start">
+      <div class="w98-logo">
+        <span></span><span></span><span></span><span></span>
+      </div>
+      Start
+    </button>
+
+    <div class="w98-tray">
+      <span class="tray-icon">🔊</span>
+      <span class="w98-clock" id="w98-clock">00:00</span>
+    </div>
+  </div>
+</div>
+
+<!-- Start menu (outside #w98 so z-index is simpler) -->
+<div class="w98-menu" id="w98-menu">
+  <div class="w98-menu-strip">
+    <span class="w98-menu-strip-label"><em>Windows</em> 98</span>
+  </div>
+  <div class="w98-menu-list">
+    {{ range hugo.Data.tools }}
+    <div class="w98-menu-item" data-url="{{ .url }}">
+      <span class="item-ico">{{ .icon }}</span>
+      <div class="item-body">
+        <span class="item-name">{{ .name }}</span>
+        <span class="item-sub">{{ .description }}</span>
+      </div>
+    </div>
+    {{ end }}
+    <div class="w98-menu-sep"></div>
+    <div class="w98-menu-item" id="w98-shutdown">
+      <span class="item-ico">🔌</span>
+      <div class="item-body">
+        <span class="item-name">Shut Down…</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var hdr      = document.querySelector('.site-header');
+  var shell    = document.getElementById('w98');
+  var menu     = document.getElementById('w98-menu');
+  var startBtn = document.getElementById('w98-start');
+
+  /* ── Pin desktop below site header ─ */
+  function resize() {
+    var hdrH = hdr ? hdr.offsetHeight : 0;
+    shell.style.top = hdrH + 'px';
+    /* start menu sits just above taskbar (34 px) */
+    menu.style.bottom = '34px';
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  /* ── Clock ─ */
+  function tick() {
+    var d = new Date(), h = d.getHours(), m = d.getMinutes();
+    document.getElementById('w98-clock').textContent =
+      String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+  }
+  tick();
+  setInterval(tick, 15000);
+
+  /* ── Start menu toggle ─ */
+  startBtn.addEventListener('click', function (e) {
+    var open = menu.classList.toggle('open');
+    startBtn.classList.toggle('open', open);
+    e.stopPropagation();
+  });
+  document.addEventListener('click', function () {
+    menu.classList.remove('open');
+    startBtn.classList.remove('open');
+  });
+  menu.addEventListener('click', function (e) { e.stopPropagation(); });
+
+  /* ── Desktop icon selection + double-click ─ */
+  var icons    = Array.from(document.querySelectorAll('.w98-icon'));
+  var selected = null;
+  var lastTap  = { el: null, t: 0 };
+
+  icons.forEach(function (icon) {
+    icon.addEventListener('click', function (e) {
+      if (selected && selected !== icon) selected.classList.remove('selected');
+      icon.classList.add('selected');
+      selected = icon;
+
+      var now = Date.now();
+      if (lastTap.el === icon && now - lastTap.t < 500) {
+        window.open(icon.dataset.url, '_blank', 'noopener,noreferrer');
+        lastTap = { el: null, t: 0 };
+      } else {
+        lastTap = { el: icon, t: now };
+      }
+      e.stopPropagation();
+    });
+  });
+
+  /* Deselect on bare desktop click */
+  document.getElementById('w98-desktop').addEventListener('click', function () {
+    if (selected) { selected.classList.remove('selected'); selected = null; }
+  });
+
+  /* ── Start-menu items ─ */
+  document.querySelectorAll('.w98-menu-item[data-url]').forEach(function (item) {
+    item.addEventListener('click', function () {
+      window.open(item.dataset.url, '_blank', 'noopener,noreferrer');
+      menu.classList.remove('open');
+      startBtn.classList.remove('open');
+    });
+  });
+
+  /* ── Shut Down easter egg ─ */
+  document.getElementById('w98-shutdown').addEventListener('click', function () {
+    alert('It is now safe to turn off your computer.');
+    menu.classList.remove('open');
+    startBtn.classList.remove('open');
+  });
+})();
+</script>
+{{ end }}
