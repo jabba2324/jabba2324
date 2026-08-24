@@ -111,6 +111,26 @@
       a.addEventListener('click', close);
     });
   })();
+
+  /* Logo → cycle to next nav item */
+  (function () {
+    var logo  = document.querySelector('.site-logo');
+    var items = Array.prototype.slice.call(
+      document.querySelectorAll('.site-nav a:not(.nav-icon)')
+    );
+    if (!logo || items.length < 2) return;
+
+    var cur = window.location.pathname;
+    var idx = -1;
+    items.forEach(function (a, i) {
+      var p = a.pathname;
+      if (p === '/' ? cur === '/' : cur.startsWith(p)) idx = i;
+    });
+
+    var next = items[(idx + 1) % items.length];
+    logo.href = next.href;
+    logo.setAttribute('aria-label', 'Go to ' + next.textContent.trim());
+  })();
   </script>
 </body>
 </html>
