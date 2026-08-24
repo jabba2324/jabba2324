@@ -407,14 +407,19 @@
     pin();
     window.addEventListener('resize', pin);
 
-    /* Click-to-enter splash — grants audio permission cleanly */
+    /* Click-to-enter splash — skipped if already entered this session */
     var splash = document.getElementById('splash');
-    var jingle = new Audio('/assets/family-mart.mp3');
-    splash.addEventListener('click', function() {
-      splash.classList.add('splash-out');
-      setTimeout(function(){ jingle.play().catch(function(){}); }, 3000);
-    });
-    splash.addEventListener('transitionend', function() { splash.remove(); });
+    if (sessionStorage.getItem('entered')) {
+      splash.remove();
+    } else {
+      var jingle = new Audio('/assets/family-mart.mp3');
+      splash.addEventListener('click', function() {
+        sessionStorage.setItem('entered', '1');
+        splash.classList.add('splash-out');
+        setTimeout(function(){ jingle.play().catch(function(){}); }, 3000);
+      });
+      splash.addEventListener('transitionend', function() { splash.remove(); });
+    }
 
     /* Pop-out: expand clip upward so magazine rises above its shelf lip */
     document.querySelectorAll('.rack-slot').forEach(function(slot){
