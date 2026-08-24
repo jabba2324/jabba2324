@@ -48,7 +48,6 @@ a:hover { color: var(--accent); }
   display: flex;
   align-items: center;
   gap: 2rem;
-  flex-wrap: wrap;
 }
 
 .site-title {
@@ -92,28 +91,32 @@ a:hover { color: var(--accent); }
 
 /* ── Mobile drawer ── */
 .nav-drawer {
-  display: none;
   position: fixed;
   left: 0; right: 0;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
   box-shadow: 0 4px 16px rgba(0,0,0,0.08);
   z-index: 99;
-  transform: translateY(-105%);
-  transition: transform 0.25s ease;
+  /* hidden: translated above viewport + invisible so it can't intercept taps */
+  transform: translateY(-110%);
+  visibility: hidden;
+  transition: transform 0.25s ease, visibility 0s 0.25s;
 }
-.nav-drawer.open { transform: translateY(0); }
+.nav-drawer.open {
+  transform: translateY(0);
+  visibility: visible;
+  transition: transform 0.25s ease, visibility 0s 0s;
+}
 .nav-drawer nav {
   display: flex;
   flex-direction: column;
   padding: 1rem 1.25rem 1.25rem;
-  gap: 0;
 }
 .nav-drawer nav a {
   text-decoration: none;
   font-size: 1rem;
   color: var(--muted);
-  padding: 0.6rem 0;
+  padding: 0.65rem 0;
   border-bottom: 1px solid var(--border);
 }
 .nav-drawer nav a:last-of-type { border-bottom: none; }
@@ -125,10 +128,10 @@ a:hover { color: var(--accent); }
   margin-top: 0.25rem;
 }
 
-@media (max-width: 640px) {
+/* Show hamburger + drawer only on mobile; hide desktop nav */
+@media (max-width: 768px) {
   .site-nav { display: none; }
   .nav-hamburger { display: flex; }
-  .nav-drawer { display: block; }
 }
 
 /* ── Footer ── */
