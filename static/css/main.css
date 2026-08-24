@@ -50,13 +50,14 @@ a:hover { color: var(--accent); }
   gap: 2rem;
 }
 
-.site-title {
-  font-size: 1.15rem;
-  font-weight: bold;
+.site-logo {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
   text-decoration: none;
-  color: var(--text);
-  letter-spacing: 0.02em;
+  transition: opacity 0.15s;
 }
+.site-logo:hover { opacity: 0.8; }
 
 .site-nav { display: flex; align-items: center; gap: 1.25rem; flex-wrap: wrap; margin-left: auto; }
 .site-nav a { text-decoration: none; font-size: 0.9rem; color: var(--muted); }

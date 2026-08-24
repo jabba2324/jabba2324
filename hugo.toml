@@ -13,6 +13,10 @@ locale = "en-gb"
 
 [menu]
   [[menu.main]]
+    name = "Blog"
+    url = "/blog/"
+    weight = 0
+  [[menu.main]]
     name = "Travel"
     url = "/travel/"
     weight = 1
