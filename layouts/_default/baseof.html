@@ -13,11 +13,14 @@
 <body>
   <header class="site-header">
     <div class="container">
-      <a class="site-logo" href="/" aria-label="Home">
-        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="24" viewBox="0 0 28 24" overflow="visible" aria-hidden="true">
-          <polygon class="site-logo-hex" points="26,12 20,22.4 8,22.4 2,12 8,1.6 20,1.6"/>
-        </svg>
-      </a>
+      <div class="site-brand">
+        <a class="site-logo" href="/" aria-label="Home">
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="24" viewBox="0 0 28 24" overflow="visible" aria-hidden="true">
+            <polygon class="site-logo-hex" points="26,12 20,22.4 8,22.4 2,12 8,1.6 20,1.6"/>
+          </svg>
+        </a>
+        <span class="site-section-label" id="site-section-label" aria-hidden="true"></span>
+      </div>
       <nav class="site-nav">
         {{ range .Site.Menus.main }}
         <a href="{{ .URL }}"{{ if (eq $.RelPermalink .URL) }} class="active"{{ end }}>{{ .Name }}</a>
@@ -130,6 +133,11 @@
     var next = items[(idx + 1) % items.length];
     logo.href = next.href;
     logo.setAttribute('aria-label', 'Go to ' + next.textContent.trim());
+
+    var label = document.getElementById('site-section-label');
+    if (label && idx >= 0) {
+      label.textContent = items[idx].textContent.trim();
+    }
   })();
   </script>
 </body>
