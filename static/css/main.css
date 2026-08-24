@@ -78,6 +78,13 @@ a:hover { color: var(--accent); }
   fill: #1d4ed8;
   stroke: #3b6fd4;
 }
+.site-logo-arrow {
+  stroke: rgba(255,255,255,0.7);
+  transition: stroke 0.18s ease;
+}
+.site-logo:hover .site-logo-arrow {
+  stroke: rgba(255,255,255,0.95);
+}
 
 .site-nav { display: flex; align-items: center; gap: 1.25rem; flex-wrap: wrap; margin-left: auto; }
 .site-nav a { text-decoration: none; font-size: 0.9rem; color: var(--muted); }
